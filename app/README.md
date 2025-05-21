@@ -28,16 +28,8 @@ docker compose exec backend pipenv run aerich upgrade
 # $ docker compose exec backend pipenv run python backend/db.py
 ```
 
-# Ingest the WES and DepMap datasets
 
-To ingest the WES dataset, run the following command:
-
-```bash
-cd ./database;
-./ingest_data.sh
-```
-
-Run the tests for backend:
+# Run the tests for backend:
 
 ```bash
 docker compose exec backend pipenv run python -m pytest --disable-warnings --cov="."
