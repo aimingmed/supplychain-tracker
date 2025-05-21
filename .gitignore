@@ -1,0 +1,10 @@
+**/__pycache__
+**/.env
+**/.coverage
+**/postgres_data
+**/data/*
+!**/data/.gitkeep
+**/.DS_Store
+**/.DS_Store
+.DS_Store
+**/migrations
