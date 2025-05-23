@@ -1,7 +1,7 @@
 from typing import List, Union
 
-from models.pydantic import SummaryPayloadSchema
-from models.tortoise import TextSummary
+from models.summaries.pydantic import SummaryPayloadSchema
+from models.summaries.tortoise import TextSummary
 
 
 async def post(payload: SummaryPayloadSchema) -> int:

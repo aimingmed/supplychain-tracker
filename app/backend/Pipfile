@@ -14,6 +14,11 @@ aerich = "==0.7.2"
 gunicorn = "==21.0.1"
 pandas = "==1.5.3"
 numpy = "==1.26.4"
+pyjwt = "*"
+passlib = "*"
+bson = "*"
+bcrypt = "==4.0.1"
+email-validator = "*"
 
 [dev-packages]
 httpx = "==0.26.0"
