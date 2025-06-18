@@ -13,6 +13,8 @@ class UsersAccount(models.Model):
     email = fields.CharField(max_length=100)
     created_at = fields.DatetimeField(auto_now_add=True)
     list_of_roles = fields.JSONField(default=list)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    is_verified = fields.BooleanField(default=False)
     last_login = fields.DatetimeField(null=True)
     
     def __str__(self):

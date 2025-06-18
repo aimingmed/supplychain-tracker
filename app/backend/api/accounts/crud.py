@@ -16,7 +16,9 @@ async def create_account(payload: AccountPayloadSchema) -> int:
         email=payload.email.lower(),
         password=auth_handler.get_password_hash(payload.password),
         list_of_roles=payload.list_of_roles,
-        last_login=payload.last_login
+        created_at=payload.created_at,
+        is_verified=payload.is_verified,
+        last_login=payload.last_login,
     )
 
     # Check if the username already exists

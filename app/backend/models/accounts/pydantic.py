@@ -18,11 +18,13 @@ class Role(str, Enum):
 class AccountPayloadSchema(BaseModel):
     username: str = Field(
         ..., min_length=3, max_length=50,
-        description="Username must be alphanumeric and at least 3 characters long."
+        description="Username must be alphanumeric and at least 3 characters long.",
+        example="johndoe"
     )
     password: str = Field(
         ..., min_length=8,
-        description="Password must be at least 8 characters long."
+        description="Password must be at least 8 characters long.",
+        example="securepassword123"
     )
     email: str = EmailStr()
     list_of_roles: Optional[List[Role]] = ["ADMIN"]
@@ -87,11 +89,13 @@ class AccountResponseSchema(BaseModel):
 class LoginSchema(BaseModel):
     username: str = Field(
         ..., min_length=3, max_length=50,
-        description="Username must be alphanumeric and at least 3 characters long."
+        description="Username must be alphanumeric and at least 3 characters long.",
+        example="johndoe"
     )
     password: str = Field(
         ..., min_length=8,
-        description="Password must be at least 8 characters long."
+        description="Password must be at least 8 characters long.",
+        example="securepassword123"
     )
 
     @validator('username')
@@ -117,6 +121,7 @@ class CurrentUserSchema(BaseModel):
     )
     email: str = EmailStr()
     list_of_roles: List[Role]
+    is_verified: bool = False
 
     class Config:
         orm_mode = True
@@ -125,5 +130,6 @@ class CurrentUserSchema(BaseModel):
                 "username": "johndoe",
                 "email": "johndoe@example.com",
                 "list_of_roles": ["ADMIN", "REQUESTOR"],
+                "is_verified": False
             }
         }
