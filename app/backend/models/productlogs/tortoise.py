@@ -4,7 +4,7 @@ from typing import Optional
 
 from datetime import datetime
 from enum import Enum
-from app.backend.models.base import BaseModel, EmailStr, Field, validator
+from app.backend.models.basemodel import BaseModel, EmailStr, Field, validator
 from email_validator import validate_email, EmailNotValidError
 
 
