@@ -25,8 +25,10 @@ class AccountPayloadSchema(BaseModel):
         description="Password must be at least 8 characters long."
     )
     email: str = EmailStr()
-    list_of_roles: Optional[List[Role]] = []
-    last_login: Optional[datetime] = None
+    list_of_roles: Optional[List[Role]] = ["ADMIN"]
+    is_verified: bool = False
+    created_at: Optional[datetime] = datetime.utcnow().isoformat()
+    last_login: Optional[datetime] = datetime.utcnow().isoformat()
 
     @validator('email')
     def validate_email(cls, value: EmailStr) -> EmailStr:
@@ -50,6 +52,8 @@ class AccountPayloadSchema(BaseModel):
                 "password": "securepassword123",
                 "email": "johndoe@example.com",
                 "list_of_roles": ["ADMIN", "REQUESTOR"],
+                "is_verified": False,
+                "created_at": "2025-06-13T12:00:00",
                 "last_login": "2025-06-13T12:00:00"
             }
         }
@@ -62,6 +66,8 @@ class AccountResponseSchema(BaseModel):
     )
     email: str = EmailStr()
     list_of_roles: Optional[List[Role]] = []
+    is_verified: bool = False
+    created_at: Optional[datetime] = None
     last_login: Optional[datetime] = None
 
     class Config:
@@ -71,6 +77,8 @@ class AccountResponseSchema(BaseModel):
                 "username": "johndoe",
                 "email": "johndoe@example.com",
                 "list_of_roles": ["ADMIN", "REQUESTOR"],
+                "created_at": "2025-06-13T12:00:00",
+                "is_verified": False,
                 "last_login": "2025-06-13T12:00:00"
             }
         }
