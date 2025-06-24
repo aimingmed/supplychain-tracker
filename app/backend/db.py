@@ -15,6 +15,7 @@ TORTOISE_ORM = {
             "models": [
                 "models.summaries.tortoise",
                 "models.accounts.tortoise",
+                "models.productlogs.tortoise",
                 "aerich.models"
             ],
             "default_connection": "default",
@@ -29,7 +30,8 @@ def init_db(app: FastAPI) -> None:
         db_url=os.environ.get("DATABASE_URL"),
         modules={"models": [
             "models.summaries.tortoise",
-            "models.accounts.tortoise"
+            "models.accounts.tortoise",
+            "models.productlogs.tortoise"
         ]},
         generate_schemas=False,
         add_exception_handlers=True,
@@ -43,7 +45,8 @@ async def generate_schema() -> None:
         db_url=os.environ.get("DATABASE_URL"),
         modules={"models": [
             "models.summaries.tortoise",
-            "models.accounts.tortoise"
+            "models.accounts.tortoise",
+            "models.productlogs.tortoise"
         ]},
     )
     log.info("Generating database schema via Tortoise...")
