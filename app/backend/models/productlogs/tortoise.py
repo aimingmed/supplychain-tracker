@@ -70,11 +70,13 @@ class ProductDetails(models.Model):
         return self.productname
 
 class ProductInventory(models.Model):
-    batchid = fields.CharField(max_length=50, pk=True)
+    # batchid_unique = fields.CharField(max_length=50, unique=True, pk=True)
+    batchid = fields.CharField(max_length=50)
     quantityinstock = fields.IntField()
     productiondate = fields.DateField()
     imageurl = fields.TextField()
     status = fields.CharField(max_length=20)
+    # to_show = fields.BooleanField(default=True, description="是否展示")
     lastupdated = fields.DatetimeField(auto_now=True)
     lastupdatedby = fields.CharField(max_length=50)
 
