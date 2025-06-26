@@ -28,7 +28,6 @@ docker compose exec backend pipenv run aerich upgrade
 # $ docker compose exec backend pipenv run python backend/db.py
 ```
 
-
 # Run the tests for backend:
 
 ```bash
@@ -37,9 +36,9 @@ docker compose exec backend pipenv run python -m pytest --disable-warnings --cov
 
 Lint:
 
-```bash
-docker compose exec backend pipenv run flake8 .
-```
+<!-- ```bash
+docker compose exec backend pipenv run flake8 tests
+``` -->
 
 Run Black and isort with check options:
 
