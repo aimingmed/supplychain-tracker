@@ -1,0 +1,22 @@
+.custom-button {
+    background-color: #409eff; /* Element UI 主色调 */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.custom-button:hover {
+    background-color: #66b1ff; /* 鼠标悬停时的背景色 */
+}
+
+.custom-button:active {
+    background-color: #3a8ee6; /* 鼠标点击时的背景色 */
+}
