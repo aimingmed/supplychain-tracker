@@ -1,14 +1,15 @@
-from tortoise import fields, models
-from tortoise.contrib.pydantic import pydantic_model_creator
-from typing import Optional
-
 from datetime import datetime
 from enum import Enum
+from typing import Optional
+
+from email_validator import EmailNotValidError, validate_email
+from tortoise import fields, models
+from tortoise.contrib.pydantic import pydantic_model_creator
+
 from app.backend.models.basemodel import BaseModel, EmailStr, Field, validator
-from email_validator import validate_email, EmailNotValidError
 
 
-class ProductDetails(models.Model):    
+class ProductDetails(models.Model):
     productid = fields.CharField(max_length=20, pk=True)
     productname = fields.CharField(max_length=100)
     categoryname = fields.CharField(max_length=100)
@@ -19,6 +20,7 @@ class ProductDetails(models.Model):
 
     def __str__(self):
         return self.productname
+
 
 class ProductInventory(ProductDetails):
     batchid = fields.CharField(max_length=50)

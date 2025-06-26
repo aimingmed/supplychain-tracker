@@ -1,5 +1,5 @@
 from bson import ObjectId
-from pydantic import Field, BaseModel
+from pydantic import BaseModel, Field
 
 
 class PyObjectId(ObjectId):
@@ -16,6 +16,7 @@ class PyObjectId(ObjectId):
     @classmethod
     def __get_pydantic_json_schema__(cls, field_schema):
         field_schema.update(type="string")
+
 
 class SqlBaseModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")

@@ -3,7 +3,8 @@
 ###########
 
 # pull official base image
-FROM python:3.12.1-slim-bookworm AS builder
+FROM python:3.11.11-slim-bookworm AS builder
+
 
 # install system dependencies
 RUN apt-get update \
@@ -27,9 +28,8 @@ RUN pipenv install --deploy
 # lint
 COPY . /usr/src/app/
 RUN pipenv run pip install black==23.12.1 flake8==7.0.0 isort==5.13.2
-# RUN pipenv run flake8 .
-# RUN pipenv run black --exclude=migrations . --check
-# RUN pipenv run isort . --check-only
+RUN pipenv run black --exclude=migrations .
+RUN pipenv run isort .
 
 
 #########
@@ -37,7 +37,7 @@ RUN pipenv run pip install black==23.12.1 flake8==7.0.0 isort==5.13.2
 #########
 
 # pull official base image
-FROM python:3.12.1-slim-bookworm
+FROM python:3.11.11-slim-bookworm
 
 # create directory for the app user
 RUN mkdir -p /home/app
