@@ -35,8 +35,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        
+        # token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # private repo cannot use secrete without upgrading plan
+        token: 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
+
     - name: Set up Python 3.11
       uses: actions/setup-python@v5 # Use latest stable version
       with:
@@ -90,8 +91,9 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+        token: 47b4b3f8-4bcc-434f-8d71-205ebb60b979
         files: ${{ env.TESTS_COVERAGE_REPORT_PATH }}
         fail_ci_if_error: true
+        slug: aimingmed/supplychain-tracker
 
       

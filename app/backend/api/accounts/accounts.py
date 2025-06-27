@@ -5,8 +5,11 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from api.accounts import crud
-from models.accounts.pydantic import (AccountPayloadSchema,
-                                      AccountResponseSchema, LoginSchema)
+from models.accounts.pydantic import (
+    AccountPayloadSchema,
+    AccountResponseSchema,
+    LoginSchema,
+)
 from models.accounts.tortoise import UsersAccount
 from models.requests.authentication import AuthHandler
 

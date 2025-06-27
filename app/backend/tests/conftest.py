@@ -1,9 +1,11 @@
 import os
+import sys
 
 import pytest
 from starlette.testclient import TestClient
 from tortoise.contrib.fastapi import register_tortoise
 
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from config import Settings, get_settings
 from main import create_application
 
