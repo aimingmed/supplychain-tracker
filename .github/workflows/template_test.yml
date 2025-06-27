@@ -51,7 +51,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: develop 
+          ref: develop
+          token: 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
 
       - name: Log in to GitHub Packages
         run: echo ${GITHUB_TOKEN} | docker login -u ${GITHUB_ACTOR} --password-stdin ghcr.io
