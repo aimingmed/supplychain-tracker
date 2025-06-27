@@ -5,11 +5,18 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi import status
 
-from api.accounts.accounts import (HTTPException, create_account,
-                                   get_current_user, login_account,
-                                   reset_password)
-from models.accounts.pydantic import (AccountPayloadSchema,
-                                      AccountResponseSchema, LoginSchema)
+from api.accounts.accounts import (
+    HTTPException,
+    create_account,
+    get_current_user,
+    login_account,
+    reset_password,
+)
+from models.accounts.pydantic import (
+    AccountPayloadSchema,
+    AccountResponseSchema,
+    LoginSchema,
+)
 
 sys.modules["models.accounts.pydantic"] = types.SimpleNamespace(
     AccountPayloadSchema=AccountPayloadSchema,
