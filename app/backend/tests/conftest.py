@@ -1,11 +1,13 @@
 import os
+import sys
 
 import pytest
 from starlette.testclient import TestClient
 from tortoise.contrib.fastapi import register_tortoise
 
-from ..config import Settings, get_settings
-from ..main import create_application
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+from config import Settings, get_settings
+from main import create_application
 
 
 def get_settings_override():
