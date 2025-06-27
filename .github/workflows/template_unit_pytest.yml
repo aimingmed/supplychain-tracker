@@ -91,8 +91,9 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+        token: 47b4b3f8-4bcc-434f-8d71-205ebb60b979
         files: ${{ env.TESTS_COVERAGE_REPORT_PATH }}
         fail_ci_if_error: true
+        slug: aimingmed/supplychain-tracker
 
       
