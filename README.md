@@ -1,4 +1,4 @@
-[![Unittest and Build + CI](https://github.com/aimingmed/supplychain-tracker/actions/workflows/build.yml/badge.svg)](https://github.com/aimingmed/supplychain-tracker/actions/workflows/build.yml)
+[![Unittest and Build + CI](https://github.com/aimingmed/supplychain-tracker/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/aimingmed/supplychain-tracker/actions/workflows/build.yml)
 
 ## Important note:
 
