@@ -4,37 +4,75 @@ from typing import Optional
 
 @ui.page('/product-management')
 def product_management_page():
-    ui.label('产品管理').classes('text-2xl font-bold mb-4')
+    ui.label('产品管理').classes('text-2xl font-bold mb-6 text-gray-800')
     
     # Filter Section
-    with ui.card().classes('w-full mb-4'):
-        with ui.row().classes('w-full items-center gap-4'):
-            ui.input('产品名称', placeholder='输入产品名称')
-            ui.input('产品编码', placeholder='输入产品编码')
-            ui.date(value=datetime.now().date()).props('range')
-            ui.button('搜索', icon='search')
-            ui.button('重置', icon='refresh')
+    with ui.card().classes('w-full mb-6 shadow-sm'):
+        with ui.column().classes('w-full gap-4'):
+            ui.label('数据筛选').classes('text-lg font-medium text-gray-700')
+            
+            with ui.row().classes('w-full items-center gap-4'):
+                ui.label('产品名称/编号：').classes('text-gray-600')
+                ui.input(placeholder='产品名称/编号').classes('w-64')
+                
+            with ui.row().classes('w-full justify-end gap-2 mt-2'):
+                ui.button('查询', icon='search').classes('bg-blue-600 text-white')
+                ui.button('重置', icon='refresh').classes('bg-gray-100 text-gray-700')
     
-    # Data Table Section
-    with ui.card().classes('w-full'):
-        columns = [
-            {'name': 'product_id', 'label': '产品ID', 'field': 'product_id'},
-            {'name': 'name', 'label': '产品名称', 'field': 'name'},
-            {'name': 'spec', 'label': '规格', 'field': 'spec'},
-            {'name': 'quantity', 'label': '库存数量', 'field': 'quantity'},
-            {'name': 'actions', 'label': '操作', 'field': 'actions'},
-        ]
-        rows = [
-            {
-                'product_id': 'P001',
-                'name': '示例产品',
-                'spec': '标准',
-                'quantity': 100,
-                'actions': '编辑 删除'
-            }
-        ]
-        ui.table(columns=columns, rows=rows, row_key='product_id').classes('w-full')
-        
-        with ui.row().classes('w-full justify-between mt-4'):
-            ui.label('共 1 条数据')
-            ui.pagination(1, 1, 1)
+    # Product Type Tabs and Actions
+    with ui.card().classes('w-full mb-6 shadow-sm'):
+        with ui.row().classes('w-full justify-between items-center'):
+            # Product type tabs
+            with ui.button_group():
+                ui.button('产品').classes('bg-blue-600 text-white')
+                ui.button('母液')
+                ui.button('原料')
+                ui.button('耗材')
+            
+            # Action buttons
+            with ui.row().classes('gap-2'):
+                ui.button('添加产品', icon='add').classes('bg-blue-600 text-white')
+                ui.button('修改产品', icon='edit').classes('bg-blue-600 text-white')
+                ui.button('删除产品', icon='delete').classes('bg-red-500 text-white')
+                ui.button('历史产品', icon='history').classes('bg-blue-600 text-white')
+                ui.button(icon='refresh').classes('bg-gray-100')
+    
+    # Data Table
+    columns = [
+        {'name': 'id', 'label': '序号', 'field': 'id', 'align': 'center', 'sortable': True},
+        {'name': 'type', 'label': '产品类型', 'field': 'type', 'align': 'center'},
+        {'name': 'name', 'label': '产品名称', 'field': 'name', 'align': 'center'},
+        {'name': 'code', 'label': '产品编号', 'field': 'code', 'align': 'center'},
+        {'name': 'spec', 'label': '规格', 'field': 'spec', 'align': 'center'},
+        {'name': 'created', 'label': '添加时间', 'field': 'created', 'align': 'center'},
+        {'name': 'updated', 'label': '修改时间', 'field': 'updated', 'align': 'center'},
+        {'name': 'actions', 'label': '操作', 'field': 'actions', 'align': 'center'},
+    ]
+    
+    rows = [
+        {
+            'id': 1,
+            'type': '产品',
+            'name': 'MasterAim®Primary Enhancer',
+            'code': '100-008',
+            'spec': '500μL',
+            'created': '2024-09-03',
+            'updated': '',
+            'actions': '详情'
+        },
+        # Add more sample rows as needed
+    ]
+    
+    ui.table(columns=columns, rows=rows).classes('w-full border rounded')
+    
+    # Pagination
+    with ui.row().classes('w-full justify-between items-center mt-4'):
+        ui.label('共 41 条').classes('text-gray-600')
+        with ui.pagination(5).classes('gap-1'):
+            ui.button(icon='chevron_left')
+            ui.button('1').classes('bg-blue-600 text-white')
+            ui.button('2')
+            ui.button('3')
+            ui.button('4')
+            ui.button('5')
+            ui.button(icon='chevron_right')
