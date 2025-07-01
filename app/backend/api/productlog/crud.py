@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from fastapi import APIRouter, Request, Body, status, HTTPException, Depends
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 
 from models.accounts.pydantic import AccountPayloadSchema
 from models.accounts.tortoise import UsersAccount
@@ -8,6 +8,7 @@ from models.requests.authentication import AuthHandler
 
 # instantiate the Auth Handler
 auth_handler = AuthHandler()
+
 
 async def create_account(payload: AccountPayloadSchema) -> int:
     account = UsersAccount(
@@ -21,23 +22,17 @@ async def create_account(payload: AccountPayloadSchema) -> int:
     )
 
     # Check if the username already exists
-    existing_account = await UsersAccount.filter(
-        username=account.username
-    ).first()
+    existing_account = await UsersAccount.filter(username=account.username).first()
     if existing_account:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already exists"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists"
         )
-    
+
     # Check if the email already exists
-    existing_email = await UsersAccount.filter(
-        email=account.email
-    ).first()
+    existing_email = await UsersAccount.filter(email=account.email).first()
     if existing_email:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already exists"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already exists"
         )
 
     await account.save()

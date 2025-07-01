@@ -1,19 +1,16 @@
+from datetime import datetime
 from typing import List
 
-from fastapi import APIRouter, Request, Body, status, HTTPException, Depends
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from api.accounts import crud
-from models.accounts.pydantic import (
-    AccountPayloadSchema, 
-    AccountResponseSchema,
-    LoginSchema,
-    CurrentUserSchema
-    )
+from models.accounts.pydantic import (AccountPayloadSchema,
+                                      AccountResponseSchema, CurrentUserSchema,
+                                      LoginSchema)
 from models.accounts.tortoise import UsersAccount
 from models.requests.authentication import AuthHandler
-from datetime import datetime
 
 router = APIRouter()
 
@@ -41,14 +38,12 @@ async def login_account(request: Request, payload: LoginSchema) -> JSONResponse:
 
     if not account:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Account not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
         )
 
     if not auth_handler.verify_password(payload.password, account["password"]):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
 
     # Update last login time
@@ -63,10 +58,8 @@ async def login_account(request: Request, payload: LoginSchema) -> JSONResponse:
 
 @router.post("/reset-password", response_description="Reset password", status_code=200)
 async def reset_password(
-    request: Request, 
-    token: str = Body(...), 
-    new_password: str = Body(...)) -> JSONResponse:
-
+    request: Request, token: str = Body(...), new_password: str = Body(...)
+) -> JSONResponse:
     try:
         # Decode the token to get the username
         username = auth_handler.decode_verification_token(token)
@@ -78,23 +71,23 @@ async def reset_password(
     if len(new_password) < MIN_PASSWORD_LENGTH:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters long."
+            detail=f"Password must be at least {MIN_PASSWORD_LENGTH} characters long.",
         )
 
     hashed_password = auth_handler.get_password_hash(new_password)
     # Update the password in the database
-    updated_count = await UsersAccount.filter(
-        username=username
-    ).update(password=hashed_password)
+    updated_count = await UsersAccount.filter(username=username).update(
+        password=hashed_password
+    )
     if updated_count == 0:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Account not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
         )
     return JSONResponse(
-        status_code=status.HTTP_200_OK, 
-        content={"message": "Password reset successfully"}
+        status_code=status.HTTP_200_OK,
+        content={"message": "Password reset successfully"},
     )
+
 
 # route to get the current user's account details
 @router.get("/me", response_model=AccountResponseSchema, status_code=200)
@@ -107,8 +100,7 @@ async def get_current_user(
 
     if not account:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Account not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Account not found"
         )
 
     # follow the same structure as the response model
