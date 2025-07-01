@@ -3,6 +3,7 @@ import logging
 from fastapi import FastAPI
 
 from api.accounts import accounts
+from api.productlog import productlog
 from db import init_db
 
 log = logging.getLogger("uvicorn")
@@ -11,6 +12,7 @@ log = logging.getLogger("uvicorn")
 def create_application() -> FastAPI:
     application = FastAPI()
     application.include_router(accounts.router, prefix="/accounts", tags=["accounts"])
+    application.include_router(productlog.router, prefix="/productlog", tags=["productlog"])
 
     return application
 
