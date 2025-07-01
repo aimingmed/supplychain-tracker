@@ -6,11 +6,11 @@ from pages.routers import prod_router
 from components.topbar import create_topbar
 from components.sidebar import create_sidebar
 
-@prod_router.page('/product-management')
-def product_management_page():
+@prod_router.page('/inventory-management')
+def inventory_management_page():
 
     # Main content area with Element UI styling
-    # ui.label('产品管理').classes('text-2xl font-bold mb-6 text-gray-800')
+    # ui.label('库存管理').classes('text-2xl font-bold mb-6 text-gray-800')
     
     # Filter Section
     with ui.card().classes('w-full mb-6 shadow-sm'):
@@ -22,7 +22,7 @@ def product_management_page():
                 ui.input(placeholder='产品名称/编号').classes('w-64')
                 
             with ui.row().classes('w-full justify-end gap-2 mt-2'):
-                ui.button('查询', icon='search').classes('text-white')
+                ui.button('查询', icon='search').classes('bg-blue-600 text-white')
                 ui.button('重置', icon='refresh').classes('text-gray-700').props('color=grey')
     
     # Product Type Tabs and Actions
@@ -33,10 +33,7 @@ def product_management_page():
             
             # Action buttons
             with ui.row().classes('gap-2'):
-                ui.button('添加产品', icon='add')
-                ui.button('修改产品', icon='edit')
-                ui.button('删除产品', icon='delete').props('color=red')
-                ui.button('历史产品', icon='history')
+                ui.button('修改库存', icon='edit')
                 ui.button(icon='autorenew').props('color=black')
     
     # Data Table
@@ -46,9 +43,9 @@ def product_management_page():
         {'name': 'name', 'label': '产品名称', 'field': 'name', 'align': 'center'},
         {'name': 'code', 'label': '产品编号', 'field': 'code', 'align': 'center'},
         {'name': 'spec', 'label': '规格', 'field': 'spec', 'align': 'center'},
-        {'name': 'created', 'label': '添加时间', 'field': 'created', 'align': 'center'},
-        {'name': 'updated', 'label': '修改时间', 'field': 'updated', 'align': 'center'},
-        {'name': 'actions', 'label': '操作', 'field': 'actions', 'align': 'center'},
+        {'name': 'quant', 'label': '数量', 'field': 'quant', 'align': 'center'},
+        {'name': 'in', 'label': '最新入库时间', 'field': 'in', 'align': 'center'},
+        {'name': 'out', 'label': '最新出库时间', 'field': 'out', 'align': 'center'},
     ]
     
     rows = [
@@ -58,9 +55,9 @@ def product_management_page():
             'name': 'MasterAim®Primary Enhancer',
             'code': '100-008',
             'spec': '500μL',
-            'created': '2024-09-03',
-            'updated': '',
-            'actions': '详情'
+            'quant': 100,
+            'in': '2024-09-03',
+            'out': '2024-09-04',
         },
         # Add more sample rows as needed
     ]
