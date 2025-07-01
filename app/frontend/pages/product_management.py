@@ -12,7 +12,7 @@ def product_management_page():
     # Main content area with Element UI styling
     # ui.label('产品管理').classes('text-2xl font-bold mb-6 text-gray-800')
     
-    # Filter Section
+    # 数据筛选部分
     with ui.card().classes('w-full mb-6 shadow-sm'):
         with ui.column().classes('w-full gap-4'):
             ui.label('数据筛选').classes('text-lg font-medium text-gray-700')
@@ -25,7 +25,45 @@ def product_management_page():
                 ui.button('查询', icon='search').classes('text-white')
                 ui.button('重置', icon='refresh').classes('text-gray-700').props('color=grey')
     
-    # Product Type Tabs and Actions
+    # 数据展示部分
+    with ui.dialog() as add_dialog, ui.card().style('width: 800px; max-width: none'):
+        with ui.column().classes('w-full gap-4'):
+            ui.label('添加产品').classes('text-lg font-medium text-gray-700')
+            ui.separator()
+            with ui.row().classes('w-full items-center gap-4'):
+                ui.label('产品类型').classes('text-gray-600')
+                ui.select({1: '产品', 2: '母液', 3: '原料', 4: '耗材'}, value=1).classes('w-64')
+                ui.label('产品名称').classes('text-gray-600')
+                ui.input(placeholder='请输入产品名称').classes('w-64')
+
+            with ui.row().classes('w-full items-center gap-4'):
+                ui.label('产品编号').classes('text-gray-600')
+                ui.input(placeholder='请输入产品编号').classes('w-64')
+                ui.label('产品单位').classes('text-gray-600')
+                ui.select({1: 'μL', 2: 'mL', 3: 'L'}).classes('w-64')
+
+            ui.label('规格').classes('text-lg font-medium text-gray-700')
+            rows = [
+                {
+                    '需要': 1,
+                    '名称': 'MasterAim®Primary Enhancer',
+                    '浓度': 500,
+                    '浓度单位': 'μL',
+                    '用量': 100,
+                    '用量单位':'μL',
+                    '操作': '+',
+                },
+            ]
+            
+            ui.table(rows=rows).classes('w-full border rounded')
+
+            ui.label('组分').classes('text-lg font-medium text-gray-700')
+
+            
+            ui.label('添加物').classes('text-lg font-medium text-gray-700')
+            
+            ui.textarea(placeholder='备注信息').style('width: 700px; max-width: none')
+
     with ui.card().classes('w-full mb-6 shadow-sm'):
         with ui.row().classes('w-full justify-between items-center'):
             # Product type tabs
@@ -33,13 +71,13 @@ def product_management_page():
             
             # Action buttons
             with ui.row().classes('gap-2'):
-                ui.button('添加产品', icon='add')
+                ui.button('添加产品', icon='add', on_click=add_dialog.open)
                 ui.button('修改产品', icon='edit')
                 ui.button('删除产品', icon='delete').props('color=red')
                 ui.button('历史产品', icon='history')
                 ui.button(icon='autorenew').props('color=black')
     
-    # Data Table
+    # 示例数据，之后可以从代码移除
     columns = [
         {'name': 'id', 'label': '序号', 'field': 'id', 'align': 'center', 'sortable': True},
         {'name': 'type', 'label': '产品类型', 'field': 'type', 'align': 'center'},
@@ -65,20 +103,8 @@ def product_management_page():
         # Add more sample rows as needed
     ]
     
-    ui.table(columns=columns, rows=rows).classes('w-full border rounded')
+    ui.table(columns=columns, rows=rows, pagination=0).classes('w-full border rounded')
     
-    # Pagination
-    with ui.row().classes('w-full justify-between items-center mt-4'):
-        ui.label('共 41 条').classes('text-gray-600')
-        with ui.pagination(1, 5).classes('gap-1'):
-            ui.button(icon='chevron_left')
-            ui.button('1')
-            ui.button('2')
-            ui.button('3')
-            ui.button('4')
-            ui.button('5')
-            ui.button(icon='chevron_right')
-
     
     # Header with Element UI blue theme
     create_topbar()

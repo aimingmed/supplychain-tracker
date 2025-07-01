@@ -37,7 +37,7 @@ def demand_management_page():
                                 } if ' - ' in (x or '') else None,
                             ):
                             with ui.row().classes('justify-end'):
-                                ui.button('Close', on_click=menu.close).props('flat')
+                                ui.button('关闭', on_click=menu.close).props('flat')
                     with date_input.add_slot('append'):
                         ui.icon('edit_calendar').on('click', menu.open).classes('cursor-pointer')
                    

@@ -17,5 +17,6 @@ if __name__ in {"__main__", "__mp_main__"}:
         title="Production Management", 
         favicon="🏭", 
         reload=True,
+        language='zh-CN',
         dark=False  # Force light mode to match Element UI
     )
