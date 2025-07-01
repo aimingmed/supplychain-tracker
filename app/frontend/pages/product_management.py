@@ -1,10 +1,16 @@
 from nicegui import ui
 from datetime import datetime
 from typing import Optional
+from pages.routers import prod_router
 
-@ui.page('/product-management')
+from components.topbar import create_topbar
+from components.sidebar import create_sidebar
+
+@prod_router.page('/product-management')
 def product_management_page():
-    ui.label('产品管理').classes('text-2xl font-bold mb-6 text-gray-800')
+
+    # Main content area with Element UI styling
+    # ui.label('产品管理').classes('text-2xl font-bold mb-6 text-gray-800')
     
     # Filter Section
     with ui.card().classes('w-full mb-6 shadow-sm'):
@@ -23,19 +29,15 @@ def product_management_page():
     with ui.card().classes('w-full mb-6 shadow-sm'):
         with ui.row().classes('w-full justify-between items-center'):
             # Product type tabs
-            with ui.button_group():
-                ui.button('产品').classes('bg-blue-600 text-white')
-                ui.button('母液')
-                ui.button('原料')
-                ui.button('耗材')
+            prod_toggle = ui.toggle(['产品', '母液', '原料', '耗材'], value='产品')
             
             # Action buttons
             with ui.row().classes('gap-2'):
-                ui.button('添加产品', icon='add').classes('bg-blue-600 text-white')
-                ui.button('修改产品', icon='edit').classes('bg-blue-600 text-white')
-                ui.button('删除产品', icon='delete').classes('bg-red-500 text-white')
-                ui.button('历史产品', icon='history').classes('bg-blue-600 text-white')
-                ui.button(icon='refresh').classes('bg-gray-100')
+                ui.button('添加产品', icon='add')
+                ui.button('修改产品', icon='edit')
+                ui.button('删除产品', icon='delete').props('color=red')
+                ui.button('历史产品', icon='history')
+                ui.button(icon='refresh').props('color=grey')
     
     # Data Table
     columns = [
@@ -68,7 +70,7 @@ def product_management_page():
     # Pagination
     with ui.row().classes('w-full justify-between items-center mt-4'):
         ui.label('共 41 条').classes('text-gray-600')
-        with ui.pagination(5).classes('gap-1'):
+        with ui.pagination(1, 5).classes('gap-1'):
             ui.button(icon='chevron_left')
             ui.button('1').classes('bg-blue-600 text-white')
             ui.button('2')
@@ -76,3 +78,10 @@ def product_management_page():
             ui.button('4')
             ui.button('5')
             ui.button(icon='chevron_right')
+
+    
+    # Header with Element UI blue theme
+    create_topbar()
+    
+    # Sidebar with light background and subtle shadow
+    create_sidebar()
