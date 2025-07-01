@@ -48,7 +48,7 @@ def product_management_page():
         {'name': 'spec', 'label': '规格', 'field': 'spec', 'align': 'center'},
         {'name': 'created', 'label': '添加时间', 'field': 'created', 'align': 'center'},
         {'name': 'updated', 'label': '修改时间', 'field': 'updated', 'align': 'center'},
-        {'name': 'actions', 'label': '操作', 'field': 'actions', 'align': 'center'},
+        {'name': 'actions', 'label': '操作', 'field': 'act', 'align': 'center'},
     ]
     
     rows = [
@@ -60,7 +60,7 @@ def product_management_page():
             'spec': '500μL',
             'created': '2024-09-03',
             'updated': '',
-            'actions': '详情'
+            'act': '详情'
         },
         # Add more sample rows as needed
     ]
