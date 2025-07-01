@@ -12,7 +12,7 @@ def create_sidebar():
             with ui.scroll_area().classes('w-full h-[calc(100vh-64px)]'):
                 with ui.column().classes('w-full p-2'):
                     # Production Management section
-                    with ui.expansion('生产管理', icon='factory').classes('w-full text-gray-700'):
+                    with ui.expansion('生产管理', icon='factory', value=True).classes('w-full text-gray-700'):
                         ui.link('产品管理', 'product-management').classes('w-full pl-8 py-2 hover:bg-blue-50')
                         ui.link('库存管理', 'inventory-management').classes('w-full pl-8 py-2 hover:bg-blue-50')
                         ui.link('需求管理', 'demand-management').classes('w-full pl-8 py-2 hover:bg-blue-50')
