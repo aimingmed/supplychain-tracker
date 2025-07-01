@@ -1,37 +1,42 @@
 from nicegui import ui
-from nicegui.events import ValueChangeEventArguments
-from typing import Optional
+from typing import Dict, Callable
 
 from components.topbar import create_topbar
 from components.sidebar import create_sidebar
+from components.product_management import create_product_management
 
-# Import all pages to register their routes
-from pages import (
-    product_management,
-    # inventory_management,
-    # demand_management,
-    # task_management,
-    # material_management,
-    # scrap_management
-)
-
-# Apply Element UI inspired global styles
-# ui.add_css("styles/element.css")
+# 功能组件映射
+FUNCTION_COMPONENTS: Dict[str, Callable] = {
+    'product': create_product_management,
+    # 'inventory': create_inventory_management,
+    # 'task': create_task_management,
+}
 
 @ui.page('/')
 def main_page():
-    # Main content area with Element UI styling
-    with ui.column().classes('w-[calc(100%-16rem)] h-full p-6'):
-        ui.label('生产系统示例').classes('text-2xl font-bold text-[#303133] mb-2')
-        ui.label('选择左侧的生产菜单项').classes('text-[#909399]')
+    # 当前活动功能
+    active, active_function = ui.state('product')
     
-    # Header with Element UI blue theme
-    with ui.header().classes('justify-between items-center h-16 bg-[#409EFF] text-white px-4 shadow-sm'):
-        create_topbar()
-    
-    # Sidebar with light background and subtle shadow
-    with ui.left_drawer(fixed=True, top_corner=True).classes('bg-white w-64 h-full shadow-md'):
-        create_sidebar()
+    # 主布局
+    with ui.column().classes('w-full h-screen'):
+        # 顶部导航栏
+        with ui.header().classes('h-16 bg-blue-500 text-white shadow-md'):
+            create_topbar()
+        
+        # 侧边栏
+        with ui.left_drawer(fixed=True).classes('w-64 h-full bg-gray-50 shadow-md'):
+            create_sidebar(active_function)
+
+        # 主体内容
+        with ui.row().classes('w-full h-[calc(100vh-4rem)]'):
+            
+            # 主内容区
+            with ui.column().classes('flex-grow p-6 overflow-auto'):
+                # 动态加载功能组件
+                def render_content():
+                    FUNCTION_COMPONENTS[active_function.value]()
+                
+                render_content()
 
 if __name__ in {"__main__", "__mp_main__"}:
     ui.run(

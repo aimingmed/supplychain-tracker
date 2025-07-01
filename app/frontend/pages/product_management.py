@@ -68,7 +68,7 @@ def product_management_page():
     # Pagination
     with ui.row().classes('w-full justify-between items-center mt-4'):
         ui.label('共 41 条').classes('text-gray-600')
-        with ui.pagination(5).classes('gap-1'):
+        with ui.pagination(1, 10).classes('gap-1'):
             ui.button(icon='chevron_left')
             ui.button('1').classes('bg-blue-600 text-white')
             ui.button('2')
