@@ -1,0 +1,115 @@
+name: Unittest and Build + CI 
+
+# Triggers: Equivalent to ADO trigger block
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+# Concurrency control: Ensures only one run per branch at a time, Equivalent to batch: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run_backend_unittests:
+    name: Run Backend unit tests
+    permissions:
+      checks: write
+    secrets: inherit # Inherit secrets from the parent workflow
+    # Call the reusable workflow for unit tests
+    uses: ./.github/workflows/template_unit_pytest.yml
+    # Pass parameters as inputs to the reusable workflow
+    with:
+      projectName: Backend # Value defined in original variables
+      workingDir: app/backend
+      testsFolderName: tests
+    # secrets: inherit # Inherit secrets from the parent workflow
+
+  # This job defines the matrix and calls the reusable workflow for each image build
+  build:
+    needs: run_backend_unittests
+    name: Build ${{ matrix.image_config.IMAGE_NAME }}
+    # Define necessary permissions if needed (e.g., for GitHub Packages)
+    permissions:
+      contents: read
+      packages: write # If pushing to GitHub Packages registry
+
+    # Use secrets defined in the repository/organization settings
+    # 'inherit' makes all secrets available to the called workflow
+    secrets: inherit
+
+    # Define the matrix strategy based on the 'images' object from the original ADO build.yml
+    strategy:
+      fail-fast: false # Don't cancel other matrix jobs if one fails
+      matrix:
+        # We wrap the image configuration in a single 'image_config' key
+        # to pass it more easily if needed, but primarily access sub-keys directly.
+        image_config:
+          - IMAGE_NAME: supplychain-tracker-backend
+            BUILD_CONTEXT: ./app/backend
+            DOCKERFILE: ./app/backend/Dockerfile.prod
+            
+    # Call the reusable workflow
+    uses: ./.github/workflows/template_build.yml # Path to the reusable workflow file
+    # Pass inputs required by the reusable workflow
+    with:
+      # Pass values from the matrix context and global env
+      project_name: supplychain-tracker
+      image_repo: "ghcr.io/$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')"
+      image_name: ${{ matrix.image_config.IMAGE_NAME }}
+      build_context: ${{ matrix.image_config.BUILD_CONTEXT }}
+      dockerfile: ${{ matrix.image_config.DOCKERFILE }}
+      build_id: ${{ github.run_id }}
+      commit_sha: ${{ github.sha }}
+
+  # # TEST Stage equivalent
+  # test:
+  #   name: Run Integration Tests
+  #   needs: build # Ensure this job runs after the build job
+  #   # Define necessary permissions if needed (e.g., for GitHub Packages)
+  #   permissions:
+  #     contents: read
+  #     packages: write # If pushing to GitHub Packages registry
+  #     checks: write # If you want to update checks
+  #   # Call the reusable workflow for testing
+  #   uses: ./.github/workflows/template_test.yml # Path to the reusable workflow file
+  #   with:
+  #     projectName: aimingmed-ai
+  #     image_repo: ghcr.io/$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')
+  #     testContainerName: tests-supplychain-tracker
+  #     # Todos: This part is not working the testEnvs is not being taken up corrrectly by Run Tests
+  #     # Pass test environment variables as JSON string
+  #     testEnvs: >
+  #       '[
+  #         "FRONTEND_URL=http://frontend:80",
+  #         "BACKEND_URL=http://backend:80",
+  #         "ENVIRONMENT=dev",
+  #         "TESTING=1",
+  #       ]'
+  #     # Todos: This part is not working the testEnvs is not being taken up corrrectly by Run Tests
+  #     # Pass test directories as JSON string
+  #     tests: >
+  #       '[
+  #         "tests/integration/backend",
+  #       ]'
+  #     # Pass image definitions for compose setup as JSON string
+  #     # Sensitive values should be passed via secrets and referenced within the template
+  #     images: >
+  #       [
+  #         {
+  #           "name": "supplychain-tracker-backend",
+  #           "ports" : ["5003:8765"],
+  #           "env": {
+  #             "ENVIRONMENT": "dev",
+  #             "DATABASE_URL": "sqlite://sqlite.db",
+  #             "DATABASE_TEST_URL": "sqlite://sqlite_test.db",
+  #             "TAVILY_API_KEY": "tvly-dev-wXXXXXX"
+      
+  #           }
+  #         }
+  #       ]
+

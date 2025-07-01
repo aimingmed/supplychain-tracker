@@ -1,4 +1,7 @@
-## Important note: 
+[![Unittest and Build + CI](https://github.com/aimingmed/supplychain-tracker/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/aimingmed/supplychain-tracker/actions/workflows/build.yml)
+
+## Important note:
+
 No data or output should be uploaded to this repo. Please make use of .gitignore template in the root directory if you have folder/directory containing dataset. The content in folder/directory currently being ignored from git push are data/ and output/, recursively.
 
 ## Configure Hooks
@@ -12,4 +15,3 @@ To set up the hooks for only this Repo run `git config core.hooksPath ./.hooks/`
 ## Please enter your general Project description here
 
 ## If you don't need all folder feel free to delete them
-
