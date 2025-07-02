@@ -12,9 +12,7 @@ log = logging.getLogger("uvicorn")
 
 def create_application() -> FastAPI:
     application = FastAPI()
-    application.include_router(
-        accounts.router, prefix="/accounts", tags=["accounts"]
-    )
+    application.include_router(accounts.router, prefix="/accounts", tags=["accounts"])
     application.include_router(
         productlog.router, prefix="/productlog", tags=["productlog"]
     )

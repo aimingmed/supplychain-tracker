@@ -1,23 +1,22 @@
+from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
+
 from api.productrequests import crud
-from models.productrequests.pydantic import (
-    RequestDetailsCreate, 
-    RequestDetailsSchema, 
-    RequestDetailsResponse,
-    RequestStatusUpdate
-)
+from models.productrequests.pydantic import (RequestDetailsCreate,
+                                             RequestDetailsResponse,
+                                             RequestDetailsSchema,
+                                             RequestStatusUpdate)
 from models.requests.authentication import AuthHandler
-from datetime import datetime
 
 router = APIRouter()
 auth_handler = AuthHandler()
 
+
 @router.post("/requests/", response_model=RequestDetailsResponse)
 async def create_request(
-    request: RequestDetailsCreate,
-    auth_details=Depends(auth_handler.auth_wrapper)
+    request: RequestDetailsCreate, auth_details=Depends(auth_handler.auth_wrapper)
 ):
     """Create a new product request.
 
@@ -35,11 +34,10 @@ async def create_request(
     list_of_roles = auth_details["list_of_roles"]
     if "REQUESTOR" not in list_of_roles:
         raise HTTPException(
-            status_code=403, 
-            detail="You do not have permission to create a request."
+            status_code=403, detail="You do not have permission to create a request."
         )
     request.requestorname = auth_details["username"]
-    
+
     # if remarks in request is "string", convert it to empty string
     if request.remarks == "string":
         request.remarks = ""
@@ -49,11 +47,9 @@ async def create_request(
     # Fetch the full response with product info
     return await crud.get_request(created.requestid)
 
-@router.get("/requests/{requestid}", response_model=RequestDetailsResponse)
-async def get_request(
-    requestid: str,
-    auth_details=Depends(auth_handler.auth_wrapper)):
 
+@router.get("/requests/{requestid}", response_model=RequestDetailsResponse)
+async def get_request(requestid: str, auth_details=Depends(auth_handler.auth_wrapper)):
     list_of_roles = auth_details["list_of_roles"]
     username = auth_details["username"]
 
@@ -70,14 +66,12 @@ async def get_request(
         return request_obj
 
     raise HTTPException(
-        status_code=403,
-        detail="You do not have permission to view this request."
+        status_code=403, detail="You do not have permission to view this request."
     )
 
+
 @router.get("/requests/", response_model=List[RequestDetailsResponse])
-async def list_requests(
-    auth_details=Depends(auth_handler.auth_wrapper)
-):
+async def list_requests(auth_details=Depends(auth_handler.auth_wrapper)):
     """List all product requests.
 
     Args:
@@ -93,17 +87,17 @@ async def list_requests(
     list_of_roles = auth_details["list_of_roles"]
     if "ADMIN" not in list_of_roles and "PRODUCTION_MANAGER" not in list_of_roles:
         raise HTTPException(
-            status_code=403, 
-            detail="You do not have permission to view requests."
+            status_code=403, detail="You do not have permission to view requests."
         )
-    
+
     return await crud.list_requests()
+
 
 @router.put("/requests/{requestid}", response_model=RequestDetailsSchema)
 async def update_request(
-    requestid: str, 
+    requestid: str,
     request: RequestDetailsCreate,
-    auth_details=Depends(auth_handler.auth_wrapper)
+    auth_details=Depends(auth_handler.auth_wrapper),
 ):
     """Update a product request.
 
@@ -119,7 +113,7 @@ async def update_request(
     Returns:
         RequestDetailsSchema: The updated request details.
     """
-    
+
     username = auth_details["username"]
 
     # if remarks in request is "string", convert it to empty string
@@ -132,24 +126,26 @@ async def update_request(
     except Exception:
         raise HTTPException(status_code=404, detail="Request not found")
 
-    if any(role in auth_details["list_of_roles"] for role in ["ADMIN", "PRODUCTION_MANAGER"]):
+    if any(
+        role in auth_details["list_of_roles"]
+        for role in ["ADMIN", "PRODUCTION_MANAGER"]
+    ):
         # Prevent changing the requestorname field if present in the update payload
         if hasattr(request, "requestorname"):
             request.requestorname = request_obj.requestorname
         return await crud.update_request(requestid, request)
-    
+
     if request_obj.requestorname == username:
         return await crud.update_request(requestid, request)
 
     raise HTTPException(
-        status_code=403,
-        detail="You do not have permission to modify this request."
+        status_code=403, detail="You do not have permission to modify this request."
     )
+
 
 @router.delete("/requests/{requestid}")
 async def delete_request(
-    requestid: str,
-    auth_details=Depends(auth_handler.auth_wrapper)
+    requestid: str, auth_details=Depends(auth_handler.auth_wrapper)
 ):
     """Delete a request.
 
@@ -164,25 +160,22 @@ async def delete_request(
     Returns:
         dict: A message indicating successful deletion.
     """
-    
+
     list_of_roles = auth_details["list_of_roles"]
 
-    if (
-        "ADMIN" in list_of_roles
-        or "PRODUCTION_MANAGER" in list_of_roles
-    ):
+    if "ADMIN" in list_of_roles or "PRODUCTION_MANAGER" in list_of_roles:
         await crud.delete_request(requestid)
         return {"detail": "Request deleted"}
 
     raise HTTPException(
-        status_code=403,
-        detail="You do not have permission to delete this request."
+        status_code=403, detail="You do not have permission to delete this request."
     )
+
 
 @router.put("/requests/{requestid}/approve", response_model=RequestDetailsSchema)
 async def update_request_approval(
-    requestid: str, 
-    auth_details=Depends(auth_handler.auth_wrapper)):
+    requestid: str, auth_details=Depends(auth_handler.auth_wrapper)
+):
     """Approve a request.
 
     Args:
@@ -201,8 +194,7 @@ async def update_request_approval(
 
     if "REQUEST_APPROVER" not in list_of_roles:
         raise HTTPException(
-            status_code=403,
-            detail="You do not have permission to approve a request."
+            status_code=403, detail="You do not have permission to approve a request."
         )
 
     # Update status and remarks
@@ -219,17 +211,14 @@ async def update_request_approval(
         remarks = f"Approved by {username} at {timestamp}"
 
     return await crud.update_request(
-        requestid,
-        RequestStatusUpdate(
-            status="APPROVED",
-            remarks=remarks
-        )
+        requestid, RequestStatusUpdate(status="APPROVED", remarks=remarks)
     )
+
 
 @router.put("/requests/{requestid}/reject", response_model=RequestDetailsSchema)
 async def update_request_rejection(
-    requestid: str,
-    auth_details=Depends(auth_handler.auth_wrapper)):
+    requestid: str, auth_details=Depends(auth_handler.auth_wrapper)
+):
     """Reject a request.
 
     Args:
@@ -248,8 +237,7 @@ async def update_request_rejection(
 
     if "REQUEST_APPROVER" not in list_of_roles:
         raise HTTPException(
-            status_code=403,
-            detail="You do not have permission to reject a request."
+            status_code=403, detail="You do not have permission to reject a request."
         )
 
     # Update status and remarks
@@ -266,18 +254,14 @@ async def update_request_rejection(
         remarks = f"Rejected by {username} at {timestamp}"
 
     return await crud.update_request(
-        requestid,
-        RequestStatusUpdate(
-            status="REJECTED",
-            remarks=remarks
-        )
+        requestid, RequestStatusUpdate(status="REJECTED", remarks=remarks)
     )
 
 
 @router.put("/requests/{requestid}/fullfill", response_model=RequestDetailsSchema)
 async def fullfill_request(
-    requestid: str,
-    auth_details=Depends(auth_handler.auth_wrapper)):
+    requestid: str, auth_details=Depends(auth_handler.auth_wrapper)
+):
     """Fullfill a request.
 
     Args:
@@ -293,13 +277,12 @@ async def fullfill_request(
     Returns:
         RequestDetailsSchema: The updated request details.
     """
-    
+
     list_of_roles = auth_details["list_of_roles"]
 
     if "FULFILLER" not in list_of_roles:
         raise HTTPException(
-            status_code=403,
-            detail="You do not have permission to fullfill a request."
+            status_code=403, detail="You do not have permission to fullfill a request."
         )
 
     # Update status and remarks
@@ -307,21 +290,17 @@ async def fullfill_request(
     request_obj = await crud.get_request(requestid)
     if not request_obj:
         raise HTTPException(status_code=404, detail="Request not found")
-    
+
     # Check if the request is already FULLFILLED
     if request_obj.status == "FULLFILLED":
-        raise HTTPException(
-            status_code=400, 
-            detail="Request is already FULLFILLED."
-        )
-    
+        raise HTTPException(status_code=400, detail="Request is already FULLFILLED.")
+
     # If approved, we fullfill the request
     if request_obj.status != "APPROVED":
         raise HTTPException(
-            status_code=400, 
-            detail="Request is not in APPROVED status."
+            status_code=400, detail="Request is not in APPROVED status."
         )
-    
+
     existing_remarks = request_obj.remarks or ""
     timestamp = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
     if existing_remarks:
@@ -335,6 +314,6 @@ async def fullfill_request(
             status="FULLFILLED",
             remarks=remarks,
             fullfillername=username,
-            fullfilldate=datetime.utcnow()
-        )
+            fullfilldate=datetime.utcnow(),
+        ),
     )

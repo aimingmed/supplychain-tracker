@@ -1,15 +1,10 @@
-
 from fastapi import APIRouter, HTTPException
 
-from api.productlog.crud import (
-    get_all_product_details,
-    get_all_product_inventory,
-    create_product_details
-)
-from models.productlog.pydantic import (
-    ProductDetailsSchema,
-    ProductInventorySchema
-)
+from api.productlog.crud import (create_product_details,
+                                 get_all_product_details,
+                                 get_all_product_inventory)
+from models.productlog.pydantic import (ProductDetailsSchema,
+                                        ProductInventorySchema)
 
 router = APIRouter()
 

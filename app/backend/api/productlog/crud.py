@@ -1,10 +1,8 @@
-
-from models.productlog.tortoise import (
-    ProductDetails, ProductDetailsSchema,
-    ProductInventory, ProductInventorySchema
-)
-
-from models.productlog.pydantic import ProductDetailsSchema as ProductDetailsCreateSchema
+from models.productlog.pydantic import \
+    ProductDetailsSchema as ProductDetailsCreateSchema
+from models.productlog.tortoise import (ProductDetails, ProductDetailsSchema,
+                                        ProductInventory,
+                                        ProductInventorySchema)
 
 
 async def get_all_product_details():

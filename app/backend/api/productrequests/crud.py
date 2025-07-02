@@ -1,13 +1,13 @@
-from models.productrequests.tortoise import RequestDetails
-from models.productrequests.pydantic import (
-    RequestDetailsCreate, 
-    RequestDetailsSchema,
-    RequestDetailsResponse, 
-    ProductDetailsInfo,
-)
-from models.productlog.tortoise import ProductDetails
-from tortoise.exceptions import DoesNotExist
 from fastapi import HTTPException
+from tortoise.exceptions import DoesNotExist
+
+from models.productlog.tortoise import ProductDetails
+from models.productrequests.pydantic import (ProductDetailsInfo,
+                                             RequestDetailsCreate,
+                                             RequestDetailsResponse,
+                                             RequestDetailsSchema)
+from models.productrequests.tortoise import RequestDetails
+
 
 async def create_request(data: RequestDetailsCreate) -> RequestDetailsSchema:
     data_dict = data.dict()
@@ -15,7 +15,10 @@ async def create_request(data: RequestDetailsCreate) -> RequestDetailsSchema:
     try:
         await ProductDetails.get(productid=data_dict["requestproductid"])
     except DoesNotExist:
-        raise HTTPException(status_code=400, detail="ProductDetails with given productid does not exist.")
+        raise HTTPException(
+            status_code=400,
+            detail="ProductDetails with given productid does not exist.",
+        )
     obj = await RequestDetails.create(**data_dict)
     # Always return the enriched response with all required fields
     return await get_request(obj.requestid)
@@ -27,7 +30,7 @@ async def get_request(requestid: int) -> RequestDetailsResponse:
     product_info = ProductDetailsInfo(
         productid=product.productid,
         productnamezh=product.productnamezh,
-        productnameen=product.productnameen
+        productnameen=product.productnameen,
     )
     return RequestDetailsResponse(
         requestid=obj.requestid,
@@ -40,7 +43,7 @@ async def get_request(requestid: int) -> RequestDetailsResponse:
         remarks=obj.remarks,
         status=obj.status,
         fullfillername=obj.fullfillername,
-        fullfilldate=obj.fullfilldate
+        fullfilldate=obj.fullfilldate,
     )
 
 
@@ -52,25 +55,29 @@ async def list_requests() -> list[RequestDetailsResponse]:
         product_info = ProductDetailsInfo(
             productid=product.productid,
             productnamezh=product.productnamezh,
-            productnameen=product.productnameen
+            productnameen=product.productnameen,
         )
-        result.append(RequestDetailsResponse(
-            requestid=obj.requestid,
-            requestorname=obj.requestorname,
-            requestdate=obj.requestdate,
-            requestproductid=obj.requestproductid,
-            product=product_info,
-            requestunit=obj.requestunit,
-            is_urgent=obj.is_urgent,
-            remarks=obj.remarks,
-            status=obj.status,
-            fullfillername=obj.fullfillername,
-            fullfilldate=obj.fullfilldate
-        ))
+        result.append(
+            RequestDetailsResponse(
+                requestid=obj.requestid,
+                requestorname=obj.requestorname,
+                requestdate=obj.requestdate,
+                requestproductid=obj.requestproductid,
+                product=product_info,
+                requestunit=obj.requestunit,
+                is_urgent=obj.is_urgent,
+                remarks=obj.remarks,
+                status=obj.status,
+                fullfillername=obj.fullfillername,
+                fullfilldate=obj.fullfilldate,
+            )
+        )
     return result
 
 
-async def update_request(requestid: int, data: RequestDetailsCreate) -> RequestDetailsSchema:
+async def update_request(
+    requestid: int, data: RequestDetailsCreate
+) -> RequestDetailsSchema:
     await RequestDetails.filter(requestid=requestid).update(**data.dict())
     obj = await RequestDetails.get(requestid=requestid)
     # Always return the enriched response with all required fields
@@ -79,5 +86,3 @@ async def update_request(requestid: int, data: RequestDetailsCreate) -> RequestD
 
 async def delete_request(requestid: int) -> None:
     await RequestDetails.filter(requestid=requestid).delete()
-
-
