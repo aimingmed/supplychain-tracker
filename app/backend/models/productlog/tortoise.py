@@ -6,7 +6,7 @@ from tortoise.contrib.pydantic import pydantic_model_creator
 
 
 class ProductDetails(models.Model):
-    productid = fields.CharField(max_length=20, pk=True, description="产品号")
+    productid = fields.CharField(max_length=20, pk=True)
     category = fields.CharField(max_length=20, description="产品类别")
     setsubcategory = fields.CharField(max_length=50, description="产品子类别")
     source = fields.CharField(max_length=20, description="产品来源")

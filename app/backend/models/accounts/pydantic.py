@@ -11,7 +11,8 @@ from ..basemodel import SqlBaseModel
 class Role(str, Enum):
     ADMIN = "ADMIN"
     REQUESTOR = "REQUESTOR"
-    SHIPPER = "SHIPPER"
+    REQUEST_APPROVER = "REQUEST_APPROVER"
+    FULFILLER = "FULFILLER"
     PRODUCER = "PRODUCER"
     PRODUCTION_MANAGER = "PRODUCTION_MANAGER"
 

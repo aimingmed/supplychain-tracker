@@ -39,11 +39,11 @@ class AuthHandler:
         """
         return self.pwd_context.verify(plain_password, hashed_password)
 
-    def encode_token(self, user_id, role):
+    def encode_token(self, username, role):
         """Generate a JWT token.
 
         Args:
-            user_id (str): The ID of the user.
+            username (str): The ID of the user.
             role (str): The role of the user.
 
         Returns:
@@ -52,7 +52,7 @@ class AuthHandler:
         payload = {
             "exp": datetime.utcnow() + timedelta(days=0, minutes=EXPIRE_TIME_MINUTE),
             "iat": datetime.utcnow(),
-            "sub": user_id,
+            "sub": username,
             "role": role,
         }
         return jwt.encode(payload, self.secret, algorithm="HS256")
@@ -86,14 +86,14 @@ class AuthHandler:
         Returns:
             dict: A dictionary containing the user ID and role.
         """
-        user_id, role = self.decode_token(auth.credentials)
-        return {"user_id": user_id, "role": role}
+        username, list_of_roles = self.decode_token(auth.credentials)
+        return {"username": username, "list_of_roles": list_of_roles}
 
-    def encode_verification_token(self, user_id):
+    def encode_verification_token(self, username):
         """Generate a verification token.
 
         Args:
-            user_id (str): The ID of the user.
+            username (str): The ID of the user.
 
         Returns:
             str: The encoded JWT token.
@@ -101,7 +101,7 @@ class AuthHandler:
         payload = {
             "exp": datetime.utcnow() + timedelta(days=30),  # Token expires in 30 day
             "iat": datetime.utcnow(),
-            "sub": user_id,
+            "sub": username,
         }
         return jwt.encode(payload, self.secret, algorithm="HS256")
 
@@ -119,7 +119,7 @@ class AuthHandler:
         """
         try:
             payload = jwt.decode(token, self.secret, algorithms=["HS256"])
-            return payload["sub"]  # Return the user_id
+            return payload["sub"]  # Return the username
         except jwt.ExpiredSignatureError:
             raise HTTPException(
                 status_code=401, detail="Verification token has expired"
