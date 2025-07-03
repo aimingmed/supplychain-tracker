@@ -39,12 +39,12 @@ class AuthHandler:
         """
         return self.pwd_context.verify(plain_password, hashed_password)
 
-    def encode_token(self, username, role):
+    def encode_token(self, username, list_of_roles):
         """Generate a JWT token.
 
         Args:
             username (str): The ID of the user.
-            role (str): The role of the user.
+            list_of_roles (list): The list_of_roles of the user.
 
         Returns:
             str: The encoded JWT token.
@@ -53,7 +53,7 @@ class AuthHandler:
             "exp": datetime.utcnow() + timedelta(days=0, minutes=EXPIRE_TIME_MINUTE),
             "iat": datetime.utcnow(),
             "sub": username,
-            "role": role,
+            "list_of_roles": list_of_roles,
         }
         return jwt.encode(payload, self.secret, algorithm="HS256")
 
@@ -67,24 +67,24 @@ class AuthHandler:
             HTTPException: If the token is invalid or expired.
 
         Returns:
-            tuple: The user ID and role extracted from the token.
+            tuple: The user ID and list_of_roles extracted from the token.
         """
         try:
             payload = jwt.decode(token, self.secret, algorithms=["HS256"])
-            return payload["sub"], payload["role"]
+            return payload["sub"], payload["list_of_roles"]
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Signature has expired")
         except jwt.InvalidTokenError as e:
             raise HTTPException(status_code=401, detail="Invalid token")
 
     def auth_wrapper(self, auth: HTTPAuthorizationCredentials = Security(security)):
-        """Extract user ID and role from the JWT token.
+        """Extract user ID and list_of_roles from the JWT token.
 
         Args:
             auth (HTTPAuthorizationCredentials, optional): The HTTP authorization credentials. Defaults to Security(security).
 
         Returns:
-            dict: A dictionary containing the user ID and role.
+            dict: A dictionary containing the user ID and list_of_roles.
         """
         username, list_of_roles = self.decode_token(auth.credentials)
         return {"username": username, "list_of_roles": list_of_roles}
