@@ -65,6 +65,9 @@ docker compose exec -it database psql -U postgres
 Then, you can connect to the database and run SQL queries. For example:
 
 ```sql
-# \c web_dev
+# \c sctracker_dev
 # \dt
 ```
+
+DROP TABLE IF EXISTS requestdetails;
+TRUNCATE TABLE aerich;

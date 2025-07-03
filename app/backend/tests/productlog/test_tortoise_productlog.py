@@ -1,5 +1,6 @@
 import pytest
-
+import random
+import tortoise.models
 from models.productlog.tortoise import ProductDetails, ProductInventory
 
 
@@ -29,15 +30,11 @@ async def test_productinventory_save_sets_batchids(monkeypatch):
     obj.batchid_external = ""
     obj.batchid_internal = ""
     # Patch parent Model.save to a dummy async function
-    import tortoise.models
-
     async def dummy_save(self, *args, **kwargs):
         return None
 
     monkeypatch.setattr(tortoise.models.Model, "save", dummy_save)
     # Patch random.choices to return a fixed string
-    import random
-
     monkeypatch.setattr(random, "choices", lambda *a, **k: list("ABC123"))
     await obj.save()
     assert obj.batchid_external == "BMID-AID"

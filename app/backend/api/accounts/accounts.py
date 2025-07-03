@@ -132,7 +132,7 @@ async def get_current_user(
         JSONResponse: The response containing the account details.
     """
     # Use 'user_id' instead of 'username' as per auth_wrapper return value
-    username = auth_details["user_id"]
+    username = auth_details["username"]
     account = await crud.get(username)
     if not account:
         raise HTTPException(

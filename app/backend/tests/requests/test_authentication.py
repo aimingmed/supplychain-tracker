@@ -24,25 +24,25 @@ def test_get_password_hash_and_verify_password():
 
 def test_encode_and_decode_token():
     handler = auth_module.AuthHandler()
-    user_id = "user123"
-    role = "admin"
-    token = handler.encode_token(user_id, role)
+    username = "user123"
+    list_of_roles = ["ADMIN", "REQUESTOR"]
+    token = handler.encode_token(username, list_of_roles)
     assert isinstance(token, str)
-    decoded_user_id, decoded_role = handler.decode_token(token)
-    assert decoded_user_id == user_id
-    assert decoded_role == role
+    decoded_username, decoded_list_of_roles = handler.decode_token(token)
+    assert decoded_username == username
+    assert decoded_list_of_roles == list_of_roles
 
 
 def test_decode_token_expired(monkeypatch):
     handler = auth_module.AuthHandler()
-    user_id = "user123"
-    role = "admin"
+    username = "user123"
+    list_of_roles = ["ADMIN", "REQUESTOR"]
     # Create an expired token
     payload = {
         "exp": datetime.utcnow() - timedelta(minutes=1),
         "iat": datetime.utcnow() - timedelta(minutes=2),
-        "sub": user_id,
-        "role": role,
+        "sub": username,
+        "list_of_roles": list_of_roles,
     }
     token = jwt.encode(payload, handler.secret, algorithm="HS256")
     with pytest.raises(HTTPException) as excinfo:
@@ -62,32 +62,32 @@ def test_decode_token_invalid():
 
 def test_auth_wrapper():
     handler = auth_module.AuthHandler()
-    user_id = "user123"
-    role = "user"
-    token = handler.encode_token(user_id, role)
+    username = "user123"
+    list_of_roles = ["ADMIN", "REQUESTOR"]
+    token = handler.encode_token(username, list_of_roles)
     credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
     result = handler.auth_wrapper(credentials)
-    assert result["user_id"] == user_id
-    assert result["role"] == role
+    assert result["username"] == username
+    assert result["list_of_roles"] == list_of_roles
 
 
 def test_encode_and_decode_verification_token():
     handler = auth_module.AuthHandler()
-    user_id = "verifyuser"
-    token = handler.encode_verification_token(user_id)
+    username = "verifyuser"
+    token = handler.encode_verification_token(username)
     assert isinstance(token, str)
-    decoded_user_id = handler.decode_verification_token(token)
-    assert decoded_user_id == user_id
+    decoded_username = handler.decode_verification_token(token)
+    assert decoded_username == username
 
 
 def test_decode_verification_token_expired():
     handler = auth_module.AuthHandler()
-    user_id = "verifyuser"
+    username = "verifyuser"
     # Create an expired verification token
     payload = {
         "exp": datetime.utcnow() - timedelta(days=1),
         "iat": datetime.utcnow() - timedelta(days=2),
-        "sub": user_id,
+        "sub": username,
     }
     token = jwt.encode(payload, handler.secret, algorithm="HS256")
     with pytest.raises(HTTPException) as excinfo:
