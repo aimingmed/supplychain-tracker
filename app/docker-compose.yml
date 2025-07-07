@@ -1,6 +1,7 @@
 services:
-  backend:
-    container_name: backend
+  backend-sctracker:
+    container_name: backend-sctracker
+    image: backend-sctracker:v1.0.0
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -18,10 +19,11 @@ services:
       - SECRET_KEY=your_secret_key_here
       - EXPIRE_TIME_MINUTES=60
     depends_on:
-      - database
+      - database-sctracker
 
-  database:
-    container_name: database
+  database-sctracker:
+    container_name: database-sctracker
+    image: database-sctracker:v1.0.0
     build:
       context: ./database
       dockerfile: Dockerfile
@@ -37,3 +39,16 @@ services:
     volumes:
       - ./backend/migrations/:/mnt/migrations
       - ./database/postgres_data:/var/lib/postgresql/data
+
+  nginx-sctracker:
+    image: nginx:latest
+    container_name: nginx-sctracker
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/nginx_local.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - backend-sctracker
+      # - frontend-sctracker

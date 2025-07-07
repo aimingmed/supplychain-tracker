@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy-dev:
+    uses: ./.github/workflows/template_deploy.yml
+    with:
+      stageName: DEV
+      projectName: sctracker
+      namespace: sctracker-dev
+      ingress2Domain: sctracker-dev.aimingmed.local
+      imageTag: latest
+
+  deploy-qa:
+    needs: deploy-dev
+    uses: ./.github/workflows/template_deploy.yml
+    with:
+      stageName: QA
+      projectName: sctracker
+      namespace: sctracker-qa
+      ingressDomain: sctracker-qa.aimingmed.local
+      ingress2Domain: sctracker-qa.aimingmed.local
+      imageTag: latest
+
+  deploy-prod:
+    needs: deploy-qa
+    uses: ./.github/workflows/template_deploy.yml
+    with:
+      stageName: PROD
+      projectName: sctracker
+      namespace: sctracker-prod
+      ingressDomain: sctracker.aimingmed.local
+      ingress2Domain: sctracker.aimingmed.local
+      imageTag: latest
