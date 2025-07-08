@@ -17,6 +17,8 @@ spec:
         name: backendsctracker
         app: sctracker
     spec:
+      imagePullSecrets:
+        - name: ghcr-cred
       containers:
         - name: backendsctracker
           image: "{{.Values.backendsctracker.image}}:{{.Values.app.imageTag}}"
