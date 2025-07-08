@@ -60,6 +60,9 @@ jobs:
 
       - name: Create imagePullSecret for ghcr.io
         run: |
+          set -e
+          echo "USERNAME is set: [${{ secrets.USERNAME }}]"
+          echo "PERSONAL_ACCESS_TOKEN is set: [${{ secrets.PERSONAL_ACCESS_TOKEN != '' && 'yes' || 'no' }}]"
           kubectl create secret docker-registry ghcr-cred \
             --docker-server=ghcr.io \
             --docker-username=${{ secrets.USERNAME }} \
