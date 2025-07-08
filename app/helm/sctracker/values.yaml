@@ -1,0 +1,30 @@
+app:
+  imageTag: latest
+  url: sctracker-dev.aimingmed.local
+
+idp:
+  clientId: "--clientid--"
+  clientSecret: "--clientsecret--"
+  baseUrl: "--idpbaseurl--"
+  tokenUrl: "--tokenurl--"
+  disable: true
+
+backend-sctracker:
+  image: sctracker/backend-sctracker
+  replicas: 1
+  port: 80
+  resources:
+    limits:
+      cpu: 200m
+      memory: 1024Mi
+    requests:
+      cpu: 200m
+      memory: 1024Mi
+  database:
+    server: "--server--"
+    instance: "--instance--"
+    database: "--database--"
+    user: "--user--"
+    password: "--password--"
+  env:
+    LOG_LEVEL: "DEBUG"
