@@ -35,11 +35,14 @@ on:
       stageName:
         required: true
         type: string
+      environment:
+        required: false
+        type: string
 
 jobs:
   deploy:
     runs-on: LeeMBP
-    environment: ${{ inputs.projectName }}-${{ inputs.stageName }}
+    environment: ${{ inputs.environment }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
