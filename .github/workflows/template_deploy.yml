@@ -75,5 +75,4 @@ jobs:
         run: |
           helm upgrade --install ${{ inputs.releaseName || 'sctracker' }} ${{ inputs.chartPath || 'app/helm/sctracker' }} \
             --namespace ${{ inputs.namespace }} \
-            --set image.tag=${{ inputs.imageTag }} \
-            --set-string override="${{ inputs.override }}"
+            --set image.tag=${{ inputs.imageTag }}
