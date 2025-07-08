@@ -1,39 +1,39 @@
 apiVersion: "apps/v1"
 kind: Deployment
 metadata:
-  name: backend-sctracker
+  name: backendsctracker
   labels:
-    name: backend-sctracker
+    name: backendsctracker
     app: sctracker
 spec:
-  replicas: { { .Values.backend-sctracker.replicas } }
+  replicas: { { .Values.backendsctracker.replicas } }
   selector:
     matchLabels:
-      name: backend-sctracker
+      name: backendsctracker
       app: sctracker
   template:
     metadata:
       labels:
-        name: backend-sctracker
+        name: backendsctracker
         app: sctracker
     spec:
       containers:
-        - name: backend-sctracker
-          image: "{{.Values.backend-sctracker.image}}:{{.Values.app.imageTag}}"
+        - name: backendsctracker
+          image: "{{.Values.backendsctracker.image}}:{{.Values.app.imageTag}}"
           ports:
-            - containerPort: { { .Values.backend-sctracker.port } }
+            - containerPort: { { .Values.backendsctracker.port } }
               name: http
               protocol: TCP
           resources:
             limits:
-              cpu: { { .Values.backend-sctracker.resources.limits.cpu } }
-              memory: { { .Values.backend-sctracker.resources.limits.memory } }
+              cpu: { { .Values.backendsctracker.resources.limits.cpu } }
+              memory: { { .Values.backendsctracker.resources.limits.memory } }
             requests:
               cpu: { { .Values.backend2.resources.requests.cpu } }
               memory: { { .Values.backend2.resources.requests.memory } }
           env:
             - name: LOG_LEVEL
-              value: { { .Values.backend-sctracker.env.LOG_LEVEL } }
+              value: { { .Values.backendsctracker.env.LOG_LEVEL } }
             - name: DISABLE_AUTH
               value: "{{.Values.idp.disable}}"
 
@@ -41,17 +41,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-sctracker
+  name: backendsctracker
   labels:
     app: sctracker
-    name: backend-sctracker
+    name: backendsctracker
 spec:
   type: ClusterIP
   ports:
     - name: http
-      targetPort: { { .Values.backend-sctracker.port } }
-      port: { { .Values.backend-sctracker.port } }
+      targetPort: { { .Values.backendsctracker.port } }
+      port: { { .Values.backendsctracker.port } }
       protocol: TCP
   selector:
     app: sctracker
-    name: backend-sctracker
+    name: backendsctracker

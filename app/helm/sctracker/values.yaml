@@ -9,8 +9,8 @@ idp:
   tokenUrl: "--tokenurl--"
   disable: true
 
-backend-sctracker:
-  image: sctracker/backend-sctracker
+backendsctracker:
+  image: sctracker/backendsctracker
   replicas: 1
   port: 80
   resources:
