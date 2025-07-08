@@ -12,6 +12,7 @@ on:
 jobs:
   deploy-dev:
     uses: ./.github/workflows/template_deploy.yml
+    secrets: inherit
     with:
       stageName: DEV
       projectName: sctracker
@@ -22,6 +23,7 @@ jobs:
   deploy-qa:
     needs: deploy-dev
     uses: ./.github/workflows/template_deploy.yml
+    secrets: inherit
     with:
       stageName: QA
       projectName: sctracker
@@ -33,6 +35,7 @@ jobs:
   deploy-prod:
     needs: deploy-qa
     uses: ./.github/workflows/template_deploy.yml
+    secrets: inherit
     with:
       stageName: PROD
       projectName: sctracker
