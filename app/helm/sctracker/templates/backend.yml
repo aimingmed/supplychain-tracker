@@ -34,6 +34,8 @@ spec:
               cpu: {{.Values.backendsctracker.resources.requests.cpu | quote}}
               memory: {{.Values.backendsctracker.resources.requests.memory | quote}}
           env:
+            - name: PORT
+              value: "{{ .Values.backendsctracker.port }}"
             - name: LOG_LEVEL
               value: {{.Values.backendsctracker.env.LOG_LEVEL | quote}}
             - name: DISABLE_AUTH
