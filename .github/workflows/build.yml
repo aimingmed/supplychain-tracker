@@ -49,7 +49,7 @@ jobs:
         # We wrap the image configuration in a single 'image_config' key
         # to pass it more easily if needed, but primarily access sub-keys directly.
         image_config:
-          - IMAGE_NAME: supplychain-tracker-backend
+          - IMAGE_NAME: backendsctracker
             BUILD_CONTEXT: ./app/backend
             DOCKERFILE: ./app/backend/Dockerfile.prod
             
