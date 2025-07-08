@@ -16,9 +16,9 @@ spec:
       http:
         paths:
           - path: /backend/(.*)
-            backend-sctracker:
+            backendsctracker:
               service:
-                name: backend-sctracker
+                name: backendsctracker
                 port:
-                  number: { { .Values.backend-sctracker.port } }
+                  number: { { .Values.backendsctracker.port } }
             pathType: Prefix
