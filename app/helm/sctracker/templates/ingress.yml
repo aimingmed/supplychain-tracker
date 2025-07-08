@@ -9,10 +9,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - { { .Values.app.url } }
+        - {{.Values.app.url}}
       secretName: tls-secret
   rules:
-    - host: { { .Values.app.url } }
+    - host: {{.Values.app.url}}
       http:
         paths:
           - path: /backend/(.*)
@@ -20,5 +20,5 @@ spec:
               service:
                 name: backendsctracker
                 port:
-                  number: { { .Values.backendsctracker.port } }
+                  number: {{.Values.backendsctracker.port}}
             pathType: Prefix
