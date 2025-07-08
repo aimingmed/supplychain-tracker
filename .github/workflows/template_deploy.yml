@@ -75,4 +75,5 @@ jobs:
         run: |
           helm upgrade --install ${{ inputs.releaseName || 'sctracker' }} ${{ inputs.chartPath || 'app/helm/sctracker' }} \
             --namespace ${{ inputs.namespace }} \
+            -f ${{ inputs.chartPath || 'app/helm/sctracker' }}/values.yaml \
             --set image.tag=${{ inputs.imageTag }}
