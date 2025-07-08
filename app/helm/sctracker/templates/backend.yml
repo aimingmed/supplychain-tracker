@@ -6,7 +6,7 @@ metadata:
     name: backendsctracker
     app: sctracker
 spec:
-  replicas: { { .Values.backendsctracker.replicas } }
+  replicas: {{.Values.backendsctracker.replicas}}
   selector:
     matchLabels:
       name: backendsctracker
@@ -21,21 +21,28 @@ spec:
         - name: backendsctracker
           image: "{{.Values.backendsctracker.image}}:{{.Values.app.imageTag}}"
           ports:
-            - containerPort: { { .Values.backendsctracker.port } }
+            - containerPort: {{.Values.backendsctracker.port}}
               name: http
               protocol: TCP
           resources:
             limits:
-              cpu: { { .Values.backendsctracker.resources.limits.cpu } }
-              memory: { { .Values.backendsctracker.resources.limits.memory } }
+              cpu: {{.Values.backendsctracker.resources.limits.cpu | quote}}
+              memory:
+                {{.Values.backendsctracker.resources.limits.memory | quote}}
             requests:
-              cpu: { { .Values.backend2.resources.requests.cpu } }
-              memory: { { .Values.backend2.resources.requests.memory } }
+              cpu:
+                { { .Values.backendsctracker.resources.requests.cpu | quote } }
+              memory:
+                {
+                  {
+                    .Values.backendsctracker.resources.requests.memory | quote,
+                  },
+                }
           env:
             - name: LOG_LEVEL
-              value: { { .Values.backendsctracker.env.LOG_LEVEL } }
+              value: {{.Values.backendsctracker.env.LOG_LEVEL | quote}}
             - name: DISABLE_AUTH
-              value: "{{.Values.idp.disable}}"
+              value: {{.Values.idp.disable | quote}}
 
 ---
 apiVersion: v1
@@ -49,8 +56,8 @@ spec:
   type: ClusterIP
   ports:
     - name: http
-      targetPort: { { .Values.backendsctracker.port } }
-      port: { { .Values.backendsctracker.port } }
+      targetPort: {{.Values.backendsctracker.port}}
+      port: {{.Values.backendsctracker.port}}
       protocol: TCP
   selector:
     app: sctracker
