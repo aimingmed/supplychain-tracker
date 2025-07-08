@@ -58,6 +58,16 @@ jobs:
         run: |
           kubectl get namespace ${{ inputs.namespace }} || kubectl create namespace ${{ inputs.namespace }}
 
+      - name: Create imagePullSecret for ghcr.io
+        run: |
+          kubectl create secret docker-registry ghcr-cred \
+            --docker-server=ghcr.io \
+            --docker-username=${{ secrets.USERNAME }} \
+            --docker-password=${{ secrets.PERSONAL_ACCESS_TOKEN }} \
+            --docker-email=devnull@github.com \
+            --namespace ${{ inputs.namespace }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Helm upgrade
         run: |
           helm upgrade --install ${{ inputs.releaseName || 'sctracker' }} ${{ inputs.chartPath || 'app/helm/sctracker' }} \
