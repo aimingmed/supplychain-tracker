@@ -10,7 +10,7 @@ idp:
   disable: true
 
 backendsctracker:
-  image: sctracker/backendsctracker
+  image: ghcr.io/aimingmed/supplychain-tracker/backendsctracker
   replicas: 1
   port: 80
   resources:

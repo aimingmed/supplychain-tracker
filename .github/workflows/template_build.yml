@@ -41,7 +41,6 @@ jobs:
         with:
           ref: develop # Use the branch specified in the calling workflow
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          # token: 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
 
       - name: Set up Docker Buildx
         # Recommended for improved build features and caching
