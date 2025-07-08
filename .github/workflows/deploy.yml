@@ -19,7 +19,7 @@ jobs:
       namespace: sctracker-dev
       ingress2Domain: sctracker-dev.aimingmed.local
       imageTag: latest
-      environment: sctracker-DEV
+      # environment: sctracker-DEV
 
   deploy-qa:
     needs: deploy-dev
@@ -32,7 +32,7 @@ jobs:
       ingressDomain: sctracker-qa.aimingmed.local
       ingress2Domain: sctracker-qa.aimingmed.local
       imageTag: latest
-      environment: sctracker-QA
+      # environment: sctracker-QA
 
   deploy-prod:
     needs: deploy-qa
@@ -45,4 +45,4 @@ jobs:
       ingressDomain: sctracker.aimingmed.local
       ingress2Domain: sctracker.aimingmed.local
       imageTag: latest
-      environment: sctracker-PROD
+      # environment: sctracker-PROD
