@@ -27,8 +27,8 @@ backendsctracker:
     user: "postgres"
     password: "postgres"
   env:
-    DATABASE_URL: "postgres://postgres:postgres@database:5432/sctracker_dev"
-    DATABASE_TEST_URL: "postgres://postgres:postgres@database:5432/sctracker_test"
+    DATABASE_URL: "postgres://postgres:postgres@database-sctracker:5432/sctracker_dev"
+    DATABASE_TEST_URL: "postgres://postgres:postgres@database-sctracker:5432/sctracker_test"
     SECRET_KEY: "your_secret_key_here"
     EXPIRE_TIME_MINUTES: "60"
     LOG_LEVEL: "DEBUG"
