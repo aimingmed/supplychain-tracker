@@ -18,6 +18,8 @@ spec:
         app: sctracker
         name: databasesctracker
     spec:
+      imagePullSecrets:
+        - name: ghcr-cred
       containers:
         - name: databasesctracker
           image: "{{ .Values.backendsctracker.database.image }}"
