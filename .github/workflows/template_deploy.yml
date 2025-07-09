@@ -35,11 +35,14 @@ on:
       stageName:
         required: true
         type: string
+      environment:
+        required: false
+        type: string
 
 jobs:
   deploy:
     runs-on: LeeMBP
-    environment: ${{ inputs.projectName }}-${{ inputs.stageName }}
+    environment: ${{ inputs.environment }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -58,9 +61,22 @@ jobs:
         run: |
           kubectl get namespace ${{ inputs.namespace }} || kubectl create namespace ${{ inputs.namespace }}
 
+      - name: Create imagePullSecret for ghcr.io
+        run: |
+          set -e
+          echo "USERNAME is set: [${{ secrets.USERNAME }}]"
+          echo "PERSONAL_ACCESS_TOKEN is set: [${{ secrets.PERSONAL_ACCESS_TOKEN != '' && 'yes' || 'no' }}]"
+          kubectl create secret docker-registry ghcr-cred \
+            --docker-server=ghcr.io \
+            --docker-username=${{ secrets.USERNAME }} \
+            --docker-password=${{ secrets.PERSONAL_ACCESS_TOKEN }} \
+            --docker-email=devnull@github.com \
+            --namespace ${{ inputs.namespace }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Helm upgrade
         run: |
           helm upgrade --install ${{ inputs.releaseName || 'sctracker' }} ${{ inputs.chartPath || 'app/helm/sctracker' }} \
             --namespace ${{ inputs.namespace }} \
-            --set image.tag=${{ inputs.imageTag }} \
-            --set-string override="${{ inputs.override }}"
+            -f ${{ inputs.chartPath || 'app/helm/sctracker' }}/values.yaml \
+            --set image.tag=${{ inputs.imageTag }}
