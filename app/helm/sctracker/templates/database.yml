@@ -2,24 +2,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: database-sctracker
+  name: databasesctracker
   labels:
     app: sctracker
-    name: database-sctracker
+    name: databasesctracker
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: sctracker
-      name: database-sctracker
+      name: databasesctracker
   template:
     metadata:
       labels:
         app: sctracker
-        name: database-sctracker
+        name: databasesctracker
     spec:
       containers:
-        - name: postgres
+        - name: databasesctracker
           image: "{{ .Values.backendsctracker.database.image }}"
           ports:
             - containerPort: 5432
@@ -30,6 +30,10 @@ spec:
               value: "{{ .Values.backendsctracker.database.user }}"
             - name: POSTGRES_PASSWORD
               value: "{{ .Values.backendsctracker.database.password }}"
+            - name: DATABASE_URL
+              value: {{ .Values.backendsctracker.env.DATABASE_URL }}
+            - name: DATABASE_TEST_URL
+              value: {{ .Values.backendsctracker.env.DATABASE_TEST_URL }}
           volumeMounts:
             - name: pgdata
               mountPath: /var/lib/postgresql/data
@@ -41,10 +45,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: database-sctracker
+  name: databasesctracker
   labels:
     app: sctracker
-    name: database-sctracker
+    name: databasesctracker
 spec:
   type: ClusterIP
   ports:
@@ -54,4 +58,4 @@ spec:
       name: postgres
   selector:
     app: sctracker
-    name: database-sctracker
+    name: databasesctracker
