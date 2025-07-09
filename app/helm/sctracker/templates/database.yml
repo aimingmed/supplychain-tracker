@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: "{{ .Values.backendsctracker.database.image | default \"postgres:15\" }}"
+          image: "{{ .Values.backendsctracker.database.image }}"
           ports:
             - containerPort: 5432
           env:
