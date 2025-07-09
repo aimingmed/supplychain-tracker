@@ -21,21 +21,21 @@ spec:
                 name: backendsctracker
                 port:
                   number: {{.Values.backendsctracker.port}}
-          - path: /api/openapi.json
+          - path: /openapi.json
             pathType: Prefix
             backend:
               service:
                 name: backendsctracker
                 port:
                   number: {{.Values.backendsctracker.port}}
-          - path: /api/docs
+          - path: /docs
             pathType: Prefix
             backend:
               service:
                 name: backendsctracker
                 port:
                   number: {{.Values.backendsctracker.port}}
-          - path: /api/redoc
+          - path: /redoc
             pathType: Prefix
             backend:
               service:
