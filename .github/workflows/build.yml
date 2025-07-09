@@ -52,6 +52,9 @@ jobs:
           - IMAGE_NAME: backendsctracker
             BUILD_CONTEXT: ./app/backend
             DOCKERFILE: ./app/backend/Dockerfile.prod
+          - IMAGE_NAME: databasesctracker
+            BUILD_CONTEXT: ./app/database
+            DOCKERFILE: ./app/database/Dockerfile
             
     # Call the reusable workflow
     uses: ./.github/workflows/template_build.yml # Path to the reusable workflow file

@@ -26,6 +26,7 @@ backendsctracker:
     database: "sctracker_dev"
     user: "postgres"
     password: "postgres"
+    image: ghcr.io/aimingmed/supplychain-tracker/databasesctracker
   env:
     DATABASE_URL: "postgres://postgres:postgres@database-sctracker:5432/sctracker_dev"
     DATABASE_TEST_URL: "postgres://postgres:postgres@database-sctracker:5432/sctracker_test"
