@@ -15,7 +15,7 @@ spec:
     - host: {{.Values.app.url}}
       http:
         paths:
-          - path: /backend/(.*)
+          - path: /api(/|$)(.*)
             pathType: Prefix
             backend:
               service:
