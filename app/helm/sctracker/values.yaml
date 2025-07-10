@@ -21,10 +21,15 @@ backendsctracker:
       cpu: 200m
       memory: 1024Mi
   database:
-    server: "--server--"
-    instance: "--instance--"
-    database: "--database--"
-    user: "--user--"
-    password: "--password--"
+    server: "database-sctracker"
+    instance: "sctracker"
+    database: "sctracker_dev"
+    user: "postgres"
+    password: "postgres"
+    image: ghcr.io/aimingmed/supplychain-tracker/databasesctracker
   env:
+    DATABASE_URL: "postgres://postgres:postgres@databasesctracker:5432/sctracker_dev"
+    DATABASE_TEST_URL: "postgres://postgres:postgres@databasesctracker:5432/sctracker_test"
+    SECRET_KEY: "your_secret_key_here"
+    EXPIRE_TIME_MINUTES: "60"
     LOG_LEVEL: "DEBUG"

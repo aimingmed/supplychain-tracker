@@ -17,6 +17,7 @@ jobs:
       stageName: DEV
       projectName: sctracker
       namespace: sctracker-dev
+      ingressDomain: sctracker-dev.aimingmed.local
       ingress2Domain: sctracker-dev.aimingmed.local
       imageTag: latest
       environment: sctracker-DEV

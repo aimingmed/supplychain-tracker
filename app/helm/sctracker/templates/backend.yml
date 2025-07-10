@@ -36,6 +36,14 @@ spec:
           env:
             - name: PORT
               value: "{{ .Values.backendsctracker.port }}"
+            - name: DATABASE_URL
+              value: {{.Values.backendsctracker.env.DATABASE_URL | quote}}
+            - name: DATABASE_TEST_URL
+              value: {{.Values.backendsctracker.env.DATABASE_TEST_URL | quote}}
+            - name: SECRET_KEY
+              value: {{.Values.backendsctracker.env.SECRET_KEY | quote}}
+            - name: EXPIRE_TIME_MINUTES
+              value: {{.Values.backendsctracker.env.EXPIRE_TIME_MINUTES | quote}}
             - name: LOG_LEVEL
               value: {{.Values.backendsctracker.env.LOG_LEVEL | quote}}
             - name: DISABLE_AUTH
