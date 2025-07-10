@@ -7,16 +7,17 @@ on:
         required: true
         type: string
       namespace:
-        required: true
+        required: false
         type: string
+        default: ""
       chartPath:
         required: false
         type: string
-        default: app/helm/sctracker
+        default: ""
       releaseName:
         required: false
         type: string
-        default: sctracker
+        default: ""
       ingressDomain:
         required: false
         type: string
@@ -32,9 +33,18 @@ on:
         required: false
         type: string
         default: ""
-      stageName:
-        required: true
+      valuesUrlPath:
+        required: false
         type: string
+        default: "app.url"
+      valuesImageTagPath:
+        required: false
+        type: string
+        default: "app.imageTag"
+      stageName:
+        required: false
+        type: string
+        default: "ERROR"
       environment:
         required: false
         type: string
@@ -42,10 +52,12 @@ on:
 jobs:
   deploy:
     runs-on: LeeMBP
-    environment: ${{ inputs.environment }}
+    environment: ${{ inputs.environment || format('{0}-{1}', inputs.projectName, inputs.stageName) }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v4
@@ -59,7 +71,7 @@ jobs:
 
       - name: Create namespace if not exists
         run: |
-          kubectl get namespace ${{ inputs.namespace }} || kubectl create namespace ${{ inputs.namespace }}
+          kubectl get namespace ${{ inputs.namespace || inputs.projectName }} || kubectl create namespace ${{ inputs.namespace || inputs.projectName }}
 
       - name: Create imagePullSecret for ghcr.io
         run: |
@@ -71,12 +83,18 @@ jobs:
             --docker-username=${{ secrets.USERNAME }} \
             --docker-password=${{ secrets.PERSONAL_ACCESS_TOKEN }} \
             --docker-email=devnull@github.com \
-            --namespace ${{ inputs.namespace }} \
+            --namespace ${{ inputs.namespace || inputs.projectName }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Helm upgrade
         run: |
-          helm upgrade --install ${{ inputs.releaseName || 'sctracker' }} ${{ inputs.chartPath || 'app/helm/sctracker' }} \
-            --namespace ${{ inputs.namespace }} \
-            -f ${{ inputs.chartPath || 'app/helm/sctracker' }}/values.yaml \
-            --set image.tag=${{ inputs.imageTag }}
+          OVERRIDE_BASE="${{ inputs.valuesUrlPath }}=${{ inputs.ingressDomain }},${{ inputs.valuesUrlPath }}2=${{ inputs.ingress2Domain }},${{ inputs.valuesImageTagPath }}=${{ inputs.imageTag }}"
+          if [ "${{ inputs.override }}" != "" ]; then
+            OVERRIDE_FINAL="$OVERRIDE_BASE,${{ inputs.override }}"
+          else
+            OVERRIDE_FINAL="$OVERRIDE_BASE"
+          fi
+          helm upgrade --install ${{ inputs.releaseName || inputs.projectName }} ${{ inputs.chartPath || format('app/helm/{0}', inputs.projectName) }} \
+            --namespace ${{ inputs.namespace || inputs.projectName }} \
+            -f ${{ inputs.chartPath || format('app/helm/{0}', inputs.projectName) }}/values.yaml \
+            --set $OVERRIDE_FINAL
