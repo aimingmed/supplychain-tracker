@@ -24,10 +24,24 @@ pipenv run aerich upgrade
 minikube tunnel
 ```
 
-# To add localhost 127.0.0.1 to /etc/hosts file in the server that hosting the kubernetes cluster
+# To add localhost 127.0.0.1 to /etc/hosts file in the server that hosting the kubernetes clusterexit
 
 ```bash
 127.0.0.1       sctracker-dev.aimingmed.local
 127.0.0.1       sctracker-qa.aimingmed.local
 127.0.0.1       sctracker.aimingmed.local
+```
+
+# for developer use:
+
+```bash
+# Diagnosis through logs for each service deployed
+kubectl get deployments -n sctracker-dev
+kubectl get pods -n sctracker-dev
+kubectl logs backendsctracker-7cf84dfd74-lws5k -n sctracker-dev
+
+# check the external network for each service deployed, if any
+kubectl get pods -n ingress-nginx
+kubectl get svc -n ingress-nginx
+kubectl describe svc ingress-nginx-controller -n ingress-nginx
 ```
