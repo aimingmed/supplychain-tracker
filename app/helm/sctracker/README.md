@@ -18,9 +18,12 @@ pipenv run aerich migrate --name "your_migration_name"
 pipenv run aerich upgrade
 ```
 
-# you must do this tunneling to access the services in the cluster to be accessible from localhost. This is necessary to access the services running in your Minikube cluster from your local machine.
+# you must do this tunneling to access the services in the cluster to be accessible from localhost. This is necessary to access the services running in your Minikube cluster from your local machine and other machine.
 
 ```bash
+# make sure minikube started with listen address to 0.0.0.0
+minikube start --listen-address=0.0.0.0
+# to access the services in the cluster
 minikube tunnel --bind-address=0.0.0.0
 ```
 
@@ -32,7 +35,7 @@ minikube tunnel --bind-address=0.0.0.0
 127.0.0.1       sctracker.aimingmed.local
 ```
 
-# for developer use:
+# for diagnosis use:
 
 ```bash
 # Diagnosis through logs for each service deployed
