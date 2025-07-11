@@ -5,11 +5,8 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from api.accounts import crud
-from models.accounts.pydantic import (
-    AccountPayloadSchema,
-    AccountResponseSchema,
-    LoginSchema,
-)
+from models.accounts.pydantic import (AccountPayloadSchema,
+                                      AccountResponseSchema, LoginSchema)
 from models.accounts.tortoise import UsersAccount
 from models.requests.authentication import AuthHandler
 
@@ -135,7 +132,7 @@ async def get_current_user(
         JSONResponse: The response containing the account details.
     """
     # Use 'user_id' instead of 'username' as per auth_wrapper return value
-    username = auth_details["user_id"]
+    username = auth_details["username"]
     account = await crud.get(username)
     if not account:
         raise HTTPException(

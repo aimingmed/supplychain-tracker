@@ -35,8 +35,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        # token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # private repo cannot use secrete without upgrading plan
-        token: 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
+        token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # private repo cannot use secrete without upgrading plan
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v5 # Use latest stable version

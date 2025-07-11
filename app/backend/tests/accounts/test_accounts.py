@@ -5,18 +5,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi import status
 
-from api.accounts.accounts import (
-    HTTPException,
-    create_account,
-    get_current_user,
-    login_account,
-    reset_password,
-)
-from models.accounts.pydantic import (
-    AccountPayloadSchema,
-    AccountResponseSchema,
-    LoginSchema,
-)
+from api.accounts.accounts import (HTTPException, create_account,
+                                   get_current_user, login_account,
+                                   reset_password)
+from models.accounts.pydantic import (AccountPayloadSchema,
+                                      AccountResponseSchema, LoginSchema)
 
 sys.modules["models.accounts.pydantic"] = types.SimpleNamespace(
     AccountPayloadSchema=AccountPayloadSchema,
@@ -146,7 +139,7 @@ async def test_reset_password_account_not_found(mock_UsersAccount, mock_auth_han
 @patch("api.accounts.accounts.crud.get", new_callable=AsyncMock)
 @patch("api.accounts.accounts.auth_handler")
 def test_get_current_user_success(mock_auth_handler, mock_crud_get):
-    auth_details = {"user_id": "testuser"}
+    auth_details = {"username": "testuser"}
     account = {
         "username": "testuser",
         "email": "test@example.com",
@@ -165,7 +158,7 @@ def test_get_current_user_success(mock_auth_handler, mock_crud_get):
 @patch("api.accounts.accounts.crud.get", new_callable=AsyncMock)
 @patch("api.accounts.accounts.auth_handler")
 def test_get_current_user_not_found(mock_auth_handler, mock_crud_get):
-    auth_details = {"user_id": "nouser"}
+    auth_details = {"username": "nouser"}
     mock_crud_get.return_value = None
     import asyncio
 

@@ -1,0 +1,100 @@
+name: Template Deploy
+
+on:
+  workflow_call:
+    inputs:
+      projectName:
+        required: true
+        type: string
+      namespace:
+        required: false
+        type: string
+        default: ""
+      chartPath:
+        required: false
+        type: string
+        default: ""
+      releaseName:
+        required: false
+        type: string
+        default: ""
+      ingressDomain:
+        required: false
+        type: string
+        default: ""
+      ingress2Domain:
+        required: false
+        type: string
+        default: ""
+      imageTag:
+        required: true
+        type: string
+      override:
+        required: false
+        type: string
+        default: ""
+      valuesUrlPath:
+        required: false
+        type: string
+        default: "app.url"
+      valuesImageTagPath:
+        required: false
+        type: string
+        default: "app.imageTag"
+      stageName:
+        required: false
+        type: string
+        default: "ERROR"
+      environment:
+        required: false
+        type: string
+
+jobs:
+  deploy:
+    runs-on: LeeMBP
+    environment: ${{ inputs.environment || format('{0}-{1}', inputs.projectName, inputs.stageName) }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'latest'
+
+      - name: Create namespace if not exists
+        run: |
+          kubectl get namespace ${{ inputs.namespace || inputs.projectName }} || kubectl create namespace ${{ inputs.namespace || inputs.projectName }}
+
+      - name: Create imagePullSecret for ghcr.io
+        run: |
+          set -e
+          echo "USERNAME is set: [${{ secrets.USERNAME }}]"
+          echo "PERSONAL_ACCESS_TOKEN is set: [${{ secrets.PERSONAL_ACCESS_TOKEN != '' && 'yes' || 'no' }}]"
+          kubectl create secret docker-registry ghcr-cred \
+            --docker-server=ghcr.io \
+            --docker-username=${{ secrets.USERNAME }} \
+            --docker-password=${{ secrets.PERSONAL_ACCESS_TOKEN }} \
+            --docker-email=devnull@github.com \
+            --namespace ${{ inputs.namespace || inputs.projectName }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Helm upgrade
+        run: |
+          OVERRIDE_BASE="${{ inputs.valuesUrlPath }}=${{ inputs.ingressDomain }},${{ inputs.valuesUrlPath }}2=${{ inputs.ingress2Domain }},${{ inputs.valuesImageTagPath }}=${{ inputs.imageTag }}"
+          if [ "${{ inputs.override }}" != "" ]; then
+            OVERRIDE_FINAL="$OVERRIDE_BASE,${{ inputs.override }}"
+          else
+            OVERRIDE_FINAL="$OVERRIDE_BASE"
+          fi
+          helm upgrade --install ${{ inputs.releaseName || inputs.projectName }} ${{ inputs.chartPath || format('app/helm/{0}', inputs.projectName) }} \
+            --namespace ${{ inputs.namespace || inputs.projectName }} \
+            -f ${{ inputs.chartPath || format('app/helm/{0}', inputs.projectName) }}/values.yaml \
+            --set $OVERRIDE_FINAL

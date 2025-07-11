@@ -49,9 +49,12 @@ jobs:
         # We wrap the image configuration in a single 'image_config' key
         # to pass it more easily if needed, but primarily access sub-keys directly.
         image_config:
-          - IMAGE_NAME: supplychain-tracker-backend
+          - IMAGE_NAME: backendsctracker
             BUILD_CONTEXT: ./app/backend
             DOCKERFILE: ./app/backend/Dockerfile.prod
+          - IMAGE_NAME: databasesctracker
+            BUILD_CONTEXT: ./app/database
+            DOCKERFILE: ./app/database/Dockerfile
             
     # Call the reusable workflow
     uses: ./.github/workflows/template_build.yml # Path to the reusable workflow file

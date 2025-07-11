@@ -1,0 +1,69 @@
+apiVersion: "apps/v1"
+kind: Deployment
+metadata:
+  name: backendsctracker
+  labels:
+    name: backendsctracker
+    app: sctracker
+spec:
+  replicas: {{.Values.backendsctracker.replicas}}
+  selector:
+    matchLabels:
+      name: backendsctracker
+      app: sctracker
+  template:
+    metadata:
+      labels:
+        name: backendsctracker
+        app: sctracker
+    spec:
+      imagePullSecrets:
+        - name: ghcr-cred
+      containers:
+        - name: backendsctracker
+          image: "{{.Values.backendsctracker.image}}:{{.Values.app.imageTag}}"
+          ports:
+            - containerPort: {{.Values.backendsctracker.port}}
+              name: http
+              protocol: TCP
+          resources:
+            limits:
+              cpu: {{.Values.backendsctracker.resources.limits.cpu | quote}}
+              memory: {{.Values.backendsctracker.resources.limits.memory | quote}}
+            requests:
+              cpu: {{.Values.backendsctracker.resources.requests.cpu | quote}}
+              memory: {{.Values.backendsctracker.resources.requests.memory | quote}}
+          env:
+            - name: PORT
+              value: "{{ .Values.backendsctracker.port }}"
+            - name: DATABASE_URL
+              value: {{.Values.backendsctracker.env.DATABASE_URL | quote}}
+            - name: DATABASE_TEST_URL
+              value: {{.Values.backendsctracker.env.DATABASE_TEST_URL | quote}}
+            - name: SECRET_KEY
+              value: {{.Values.backendsctracker.env.SECRET_KEY | quote}}
+            - name: EXPIRE_TIME_MINUTES
+              value: {{.Values.backendsctracker.env.EXPIRE_TIME_MINUTES | quote}}
+            - name: LOG_LEVEL
+              value: {{.Values.backendsctracker.env.LOG_LEVEL | quote}}
+            - name: DISABLE_AUTH
+              value: {{.Values.idp.disable | quote}}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backendsctracker
+  labels:
+    app: sctracker
+    name: backendsctracker
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      targetPort: {{.Values.backendsctracker.port}}
+      port: {{.Values.backendsctracker.port}}
+      protocol: TCP
+  selector:
+    app: sctracker
+    name: backendsctracker
