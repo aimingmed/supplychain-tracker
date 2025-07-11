@@ -21,7 +21,7 @@ pipenv run aerich upgrade
 # you must do this tunneling to access the services in the cluster to be accessible from localhost. This is necessary to access the services running in your Minikube cluster from your local machine.
 
 ```bash
-minikube tunnel
+minikube tunnel --bind-address=0.0.0.0
 ```
 
 # To add localhost 127.0.0.1 to /etc/hosts file in the server that hosting the kubernetes clusterexit
