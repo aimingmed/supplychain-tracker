@@ -30,7 +30,7 @@ services:
     image: frontend-sctracker:v1.0.0
     platform: linux/amd64
     volumes:
-      - ./frontend-sctracker:/usr/src/app
+      - ./frontend-react:/usr/src/app
       - /usr/src/app/node_modules
     ports:
       - "3005:80"
