@@ -21,6 +21,26 @@ services:
     depends_on:
       - database-sctracker
 
+
+  frontend-sctracker:
+    build:
+      context: ./frontend-react
+      dockerfile: Dockerfile.local
+    container_name: frontend-sctracker
+    image: frontend-sctracker:v1.0.0
+    platform: linux/amd64
+    volumes:
+      - ./frontend-sctracker:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3005:80"
+    depends_on:
+      - backend-sctracker
+    environment:
+      LOG_LEVEL: "DEBUG"
+      VITE_REACT_APP_BASE_URL: "https://localhost/api/"
+
+
   database-sctracker:
     container_name: database-sctracker
     image: database-sctracker:v1.0.0

@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  }
+  
+  body {
+    @apply bg-gray-50 text-gray-900 font-sans;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  /* Button Styles */
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 active:bg-primary-700 text-white px-4 py-2 rounded border border-primary-500 font-normal text-sm leading-5 transition-colors duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 active:bg-gray-100 text-gray-700 border border-gray-300 px-4 py-2 rounded font-normal text-sm leading-5 transition-colors duration-200;
+  }
+  
+  .btn-success {
+    @apply bg-success-500 hover:bg-success-600 text-white px-4 py-2 rounded border border-success-500 font-normal text-sm leading-5 transition-colors duration-200;
+  }
+  
+  .btn-warning {
+    @apply bg-warning-500 hover:bg-warning-600 text-white px-4 py-2 rounded border border-warning-500 font-normal text-sm leading-5 transition-colors duration-200;
+  }
+  
+  .btn-danger {
+    @apply bg-danger-500 hover:bg-danger-600 text-white px-4 py-2 rounded border border-danger-500 font-normal text-sm leading-5 transition-colors duration-200;
+  }
+
+  /* Card Styles */
+  .card {
+    @apply bg-white rounded border border-gray-200 shadow-element-light;
+  }
+  
+  /* Input Styles */
+  .input-element {
+    @apply w-full px-3 py-2 border border-gray-300 rounded text-sm leading-5 transition-colors duration-200;
+    @apply focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500;
+  }
+  
+  .input-element:hover {
+    @apply border-gray-400;
+  }
+  
+  .input-element.error {
+    @apply border-danger-500 focus:border-danger-500 focus:ring-danger-500;
+  }
+  
+  /* Table Styles */
+  .table-element {
+    @apply w-full bg-white border border-gray-200 rounded;
+  }
+  
+  .table-element th {
+    @apply bg-gray-50 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200;
+  }
+  
+  .table-element td {
+    @apply px-4 py-3 text-sm text-gray-900 border-b border-gray-200;
+  }
+  
+  .table-element tr:last-child td {
+    @apply border-b-0;
+  }
+  
+  .table-element tr:hover {
+    @apply bg-gray-50;
+  }
+  
+  /* Toggle/Tab Styles */
+  .toggle-element {
+    @apply inline-flex border border-gray-300 rounded;
+  }
+  
+  .toggle-element button {
+    @apply px-4 py-2 text-sm font-medium transition-colors duration-200;
+  }
+  
+  .toggle-element button.active {
+    @apply bg-primary-500 text-white border-primary-500;
+  }
+  
+  .toggle-element button:not(.active) {
+    @apply bg-white text-gray-700 hover:bg-gray-50;
+  }
+  
+  /* Modal Styles */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50;
+  }
+  
+  .modal-content {
+    @apply bg-white rounded shadow-element max-w-full max-h-full overflow-auto;
+  }
+  
+  /* Header/Topbar Styles */
+  .topbar-element {
+    @apply bg-primary-500 text-white h-16 px-4 flex items-center justify-between shadow-sm;
+  }
+  
+  /* Sidebar Styles */
+  .sidebar-element {
+    @apply bg-white h-full shadow-element border-r border-gray-200 flex flex-col;
+  }
+  
+  .sidebar-menu {
+    @apply flex-1 overflow-y-auto p-2;
+  }
+  
+  .sidebar-menu-item {
+    @apply flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-primary-600 transition-colors duration-200;
+  }
+  
+  .sidebar-menu-item.active {
+    @apply bg-primary-50 text-primary-600 border-r-2 border-primary-500;
+  }
+  
+  .sidebar-menu-group {
+    @apply mb-1;
+  }
+  
+  .sidebar-menu-title {
+    @apply w-full flex items-center px-3 py-2 text-gray-700 hover:bg-blue-50 hover:text-primary-600 transition-colors duration-200 rounded;
+  }
+  
+  .sidebar-submenu {
+    @apply ml-6 mt-1 space-y-1;
+  }
+  
+  .sidebar-submenu-item {
+    @apply text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded;
+  }
+  
+  .sidebar-submenu-item.active {
+    @apply bg-primary-50 text-primary-600 border-r-2 border-primary-500;
+  }
+  
+  /* Layout Styles */
+  .layout-element {
+    @apply min-h-screen bg-gray-50 flex flex-col;
+  }
+  
+  .layout-body {
+    @apply flex flex-1 overflow-hidden;
+  }
+  
+  .layout-main {
+    @apply flex-1 overflow-auto;
+  }
+  
+  /* Modal Enhancement */
+  .modal-element {
+    @apply relative bg-white rounded shadow-element w-full;
+  }
+  
+  .modal-header {
+    @apply flex items-center justify-between p-6 border-b border-gray-200;
+  }
+  
+  .modal-body {
+    @apply p-6;
+  }
+  
+  .modal-footer {
+    @apply flex items-center justify-end gap-2 p-6 border-t border-gray-200;
+  }
+}
