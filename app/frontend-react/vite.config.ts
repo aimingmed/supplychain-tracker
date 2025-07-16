@@ -11,7 +11,12 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
-    open: true,
+    host: true,
+    strictPort: true,
+    port: 80,
+    allowedHosts: ["frontend-sctracker", "staging-sctracker.aimingmed.local", "localhost"],
+    hmr: {
+      clientPort: 443
+    }
   },
 })

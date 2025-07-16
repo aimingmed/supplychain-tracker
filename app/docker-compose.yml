@@ -14,8 +14,8 @@ services:
     environment:
       - ENVIRONMENT=dev
       - TESTING=0
-      - DATABASE_URL=postgres://postgres:postgres@database:5432/sctracker_dev
-      - DATABASE_TEST_URL=postgres://postgres:postgres@database:5432/sctracker_test
+      - DATABASE_URL=postgres://postgres:postgres@database-sctracker:5432/sctracker_dev
+      - DATABASE_TEST_URL=postgres://postgres:postgres@database-sctracker:5432/sctracker_test
       - SECRET_KEY=your_secret_key_here
       - EXPIRE_TIME_MINUTES=60
     depends_on:
@@ -38,7 +38,7 @@ services:
       - backend-sctracker
     environment:
       LOG_LEVEL: "DEBUG"
-      VITE_REACT_APP_BASE_URL: "https://localhost/api/"
+      VITE_REACT_APP_BASE_URL: "https://staging-sctracker.aimingmed.local/api"
 
 
   database-sctracker:
@@ -71,4 +71,3 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl
     depends_on:
       - backend-sctracker
-      # - frontend-sctracker

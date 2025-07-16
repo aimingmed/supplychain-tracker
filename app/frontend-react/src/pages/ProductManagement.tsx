@@ -1,42 +1,99 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, RotateCcw, Plus, Edit, Trash2, History, RefreshCw } from 'lucide-react';
 import { Card, Button, Input, Select, Table, Modal } from '../components/ui';
-import type { Product } from '../types';
+import { Category, SubCategory, Source, Unit } from '../types';
+import type { ProductDetails, CategoryType } from '../types';
+import ProductApi from '../services/productApi';
 
 const ProductManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedProductType, setSelectedProductType] = useState('产品');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType>(Category.ORGANOID);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState<ProductDetails[]>([]);
 
-  // Sample data
-  const [products] = useState<Product[]>([
-    {
-      id: 1,
-      type: '产品',
-      name: 'MasterAim®Primary Enhancer',
-      code: '100-008',
-      spec: '500μL',
-      created: '2024-09-03',
-      updated: '',
-    }
-  ]);
+  // Form state for adding new product
+  const [newProduct, setNewProduct] = useState<Partial<ProductDetails>>({
+    productid: '',
+    category: Category.ORGANOID,
+    setsubcategory: SubCategory.HUMAN_ORGANOID,
+    source: Source.HUMAN,
+    productnameen: '',
+    productnamezh: '',
+    specification: '',
+    unit: Unit.BOX,
+    components: [],
+    is_sold_independently: true,
+    remarks_temperature: '',
+    storage_temperature_duration: '',
+    reorderlevel: 10,
+    targetstocklevel: 100,
+    leadtime: 5
+  });
 
-  const productTypes = [
-    { value: '产品', label: '产品' },
-    { value: '母液', label: '母液' },
-    { value: '原料', label: '原料' },
-    { value: '耗材', label: '耗材' }
+  // Category options matching backend enums
+  const categoryOptions = [
+    { value: Category.ORGANOID, label: Category.ORGANOID },
+    { value: Category.CONSUMABLE, label: Category.CONSUMABLE },
+    { value: Category.EQUIPMENT, label: Category.EQUIPMENT },
+    { value: Category.REAGENT, label: Category.REAGENT }
   ];
 
+  // SubCategory options
+  const subCategoryOptions = Object.values(SubCategory).map(value => ({
+    value,
+    label: value
+  }));
+
+  // Source options
+  const sourceOptions = Object.values(Source).map(value => ({
+    value,
+    label: value
+  }));
+
+  // Unit options
+  const unitOptions = Object.values(Unit).map(value => ({
+    value,
+    label: value
+  }));
+
+  // Fetch products from API
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const data = await ProductApi.getAllProductDetails();
+      setProducts(data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter products based on search term and selected category
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = product.category === selectedCategory;
+    const matchesSearch = !searchTerm || 
+      product.productid.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.productnamezh.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.productnameen.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesCategory && matchesSearch;
+  });
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
   const columns = [
-    { key: 'id', label: '序号', align: 'center' as const, sortable: true },
-    { key: 'type', label: '产品类型', align: 'center' as const },
-    { key: 'name', label: '产品名称', align: 'center' as const },
-    { key: 'code', label: '产品编号', align: 'center' as const },
-    { key: 'spec', label: '规格', align: 'center' as const },
-    { key: 'created', label: '添加时间', align: 'center' as const },
-    { key: 'updated', label: '修改时间', align: 'center' as const },
+    { key: 'productid', label: '产品编号', align: 'center' as const, sortable: true },
+    { key: 'category', label: '产品类别', align: 'center' as const },
+    { key: 'productnamezh', label: '产品名称(中文)', align: 'center' as const },
+    { key: 'productnameen', label: '产品名称(英文)', align: 'center' as const },
+    { key: 'specification', label: '规格', align: 'center' as const },
+    { key: 'unit', label: '单位', align: 'center' as const },
+    { key: 'setsubcategory', label: '产品子类别', align: 'center' as const },
+    { key: 'source', label: '来源', align: 'center' as const },
     {
       key: 'actions',
       label: '操作',
@@ -49,15 +106,51 @@ const ProductManagement: React.FC = () => {
     }
   ];
 
-  const handleSearch = () => {
-    setLoading(true);
-    // Implement search logic
-    setTimeout(() => setLoading(false), 1000);
+  const handleSearch = async () => {
+    // The search is now handled by the filteredProducts computed value
+    // But we can still refresh the data if needed
+    await fetchProducts();
   };
 
   const handleReset = () => {
     setSearchTerm('');
-    setSelectedProductType('产品');
+    setSelectedCategory(Category.ORGANOID);
+  };
+
+  const handleAddProduct = async () => {
+    try {
+      // Validate required fields
+      if (!newProduct.productid || !newProduct.productnamezh || !newProduct.productnameen) {
+        alert('请填写必要字段：产品编号、中文名称、英文名称');
+        return;
+      }
+
+      await ProductApi.createProductDetails(newProduct as ProductDetails);
+      setIsAddModalOpen(false);
+      await fetchProducts();
+      
+      // Reset form
+      setNewProduct({
+        productid: '',
+        category: Category.ORGANOID,
+        setsubcategory: SubCategory.HUMAN_ORGANOID,
+        source: Source.HUMAN,
+        productnameen: '',
+        productnamezh: '',
+        specification: '',
+        unit: Unit.BOX,
+        components: [],
+        is_sold_independently: true,
+        remarks_temperature: '',
+        storage_temperature_duration: '',
+        reorderlevel: 10,
+        targetstocklevel: 100,
+        leadtime: 5
+      });
+    } catch (error) {
+      console.error('Error adding product:', error);
+      alert('添加产品失败，请重试');
+    }
   };
 
   return (
@@ -86,21 +179,21 @@ const ProductManagement: React.FC = () => {
         </div>
       </Card>
 
-      {/* Product Type Tabs and Actions */}
+      {/* Product Category Tabs and Actions */}
       <Card>
         <div className="flex justify-between items-center">
-          {/* Product Type Toggle */}
+          {/* Product Category Toggle */}
           <div className="flex border rounded-md">
-            {productTypes.map((type) => (
+            {categoryOptions.map((type) => (
               <button
                 key={type.value}
-                onClick={() => setSelectedProductType(type.value)}
+                onClick={() => setSelectedCategory(type.value)}
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  selectedProductType === type.value
+                  selectedCategory === type.value
                     ? 'bg-primary-500 text-white'
                     : 'text-gray-700 hover:bg-gray-50'
-                } ${type.value === productTypes[0].value ? 'rounded-l-md' : ''} ${
-                  type.value === productTypes[productTypes.length - 1].value ? 'rounded-r-md' : ''
+                } ${type.value === categoryOptions[0].value ? 'rounded-l-md' : ''} ${
+                  type.value === categoryOptions[categoryOptions.length - 1].value ? 'rounded-r-md' : ''
                 }`}
               >
                 {type.label}
@@ -133,7 +226,7 @@ const ProductManagement: React.FC = () => {
       <Card>
         <Table
           columns={columns}
-          data={products.filter(p => p.type === selectedProductType)}
+          data={filteredProducts}
           loading={loading}
         />
       </Card>
@@ -149,7 +242,7 @@ const ProductManagement: React.FC = () => {
             <Button variant="secondary" onClick={() => setIsAddModalOpen(false)}>
               取消
             </Button>
-            <Button>
+            <Button onClick={handleAddProduct}>
               确定
             </Button>
           </>
@@ -157,72 +250,106 @@ const ProductManagement: React.FC = () => {
       >
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            <Select
-              label="产品类型"
-              options={productTypes}
-              defaultValue="产品"
-            />
-            <Input
-              label="产品名称"
-              placeholder="请输入产品名称"
-            />
             <Input
               label="产品编号"
               placeholder="请输入产品编号"
+              value={newProduct.productid || ''}
+              onChange={(e) => setNewProduct({...newProduct, productid: e.target.value})}
+            />
+            <Select
+              label="产品类别"
+              options={categoryOptions}
+              value={newProduct.category}
+              onChange={(e) => setNewProduct({...newProduct, category: e.target.value as CategoryType})}
+            />
+            <Select
+              label="产品子类别"
+              options={subCategoryOptions}
+              value={newProduct.setsubcategory}
+              onChange={(e) => setNewProduct({...newProduct, setsubcategory: e.target.value as any})}
+            />
+            <Select
+              label="产品来源"
+              options={sourceOptions}
+              value={newProduct.source}
+              onChange={(e) => setNewProduct({...newProduct, source: e.target.value as any})}
+            />
+            <Input
+              label="产品名称(中文)"
+              placeholder="请输入产品名称"
+              value={newProduct.productnamezh || ''}
+              onChange={(e) => setNewProduct({...newProduct, productnamezh: e.target.value})}
+            />
+            <Input
+              label="产品名称(英文)"
+              placeholder="Please enter product name"
+              value={newProduct.productnameen || ''}
+              onChange={(e) => setNewProduct({...newProduct, productnameen: e.target.value})}
+            />
+            <Input
+              label="规格"
+              placeholder="请输入规格"
+              value={newProduct.specification || ''}
+              onChange={(e) => setNewProduct({...newProduct, specification: e.target.value})}
             />
             <Select
               label="产品单位"
-              options={[
-                { value: 'μL', label: 'μL' },
-                { value: 'mL', label: 'mL' },
-                { value: 'L', label: 'L' }
-              ]}
+              options={unitOptions}
+              value={newProduct.unit}
+              onChange={(e) => setNewProduct({...newProduct, unit: e.target.value as any})}
+            />
+            <Input
+              label="补货水平"
+              type="number"
+              placeholder="10"
+              value={newProduct.reorderlevel?.toString() || ''}
+              onChange={(e) => setNewProduct({...newProduct, reorderlevel: parseInt(e.target.value) || 0})}
+            />
+            <Input
+              label="目标库存水平"
+              type="number"
+              placeholder="100"
+              value={newProduct.targetstocklevel?.toString() || ''}
+              onChange={(e) => setNewProduct({...newProduct, targetstocklevel: parseInt(e.target.value) || 0})}
+            />
+            <Input
+              label="交货时间(天)"
+              type="number"
+              placeholder="5"
+              value={newProduct.leadtime?.toString() || ''}
+              onChange={(e) => setNewProduct({...newProduct, leadtime: parseInt(e.target.value) || 0})}
             />
           </div>
 
           <div>
-            <h4 className="text-lg font-medium text-gray-700 mb-4">规格</h4>
-            <Table
-              columns={[
-                { key: 'required', label: '需要', align: 'center' },
-                { key: 'name', label: '名称', align: 'center' },
-                { key: 'concentration', label: '浓度', align: 'center' },
-                { key: 'concentrationUnit', label: '浓度单位', align: 'center' },
-                { key: 'usage', label: '用量', align: 'center' },
-                { key: 'usageUnit', label: '用量单位', align: 'center' },
-                { key: 'actions', label: '操作', align: 'center' }
-              ]}
-              data={[
-                {
-                  required: 1,
-                  name: 'MasterAim®Primary Enhancer',
-                  concentration: 500,
-                  concentrationUnit: 'μL',
-                  usage: 100,
-                  usageUnit: 'μL',
-                  actions: '+'
-                }
-              ]}
+            <label className="block text-sm font-medium text-gray-700 mb-2">温度标注</label>
+            <Input
+              placeholder="如: Store at -20°C"
+              value={newProduct.remarks_temperature || ''}
+              onChange={(e) => setNewProduct({...newProduct, remarks_temperature: e.target.value})}
             />
           </div>
 
           <div>
-            <h4 className="text-lg font-medium text-gray-700 mb-2">组分</h4>
-            {/* Add component form here */}
-          </div>
-
-          <div>
-            <h4 className="text-lg font-medium text-gray-700 mb-2">添加物</h4>
-            {/* Add additives form here */}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">备注</label>
-            <textarea
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-              rows={4}
-              placeholder="备注信息"
+            <label className="block text-sm font-medium text-gray-700 mb-2">储存温度&质保期</label>
+            <Input
+              placeholder="如: Store at -20°C for 6 months"
+              value={newProduct.storage_temperature_duration || ''}
+              onChange={(e) => setNewProduct({...newProduct, storage_temperature_duration: e.target.value})}
             />
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="is_sold_independently"
+              checked={newProduct.is_sold_independently || false}
+              onChange={(e) => setNewProduct({...newProduct, is_sold_independently: e.target.checked})}
+              className="mr-2"
+            />
+            <label htmlFor="is_sold_independently" className="text-sm font-medium text-gray-700">
+              是否独立销售
+            </label>
           </div>
         </div>
       </Modal>
