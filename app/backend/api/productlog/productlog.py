@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, HTTPException
 
 from api.productlog.crud import (create_product_details,
@@ -9,7 +10,7 @@ from models.productlog.pydantic import (ProductDetailsSchema,
 router = APIRouter()
 
 
-@router.get("/product-details", response_model=list[ProductDetailsSchema])
+@router.get("/product-details", response_model=List[ProductDetailsSchema])
 async def read_all_product_details():
     """
     Get all product details.
@@ -28,7 +29,7 @@ async def create_product_details_endpoint(data: ProductDetailsSchema):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/product-inventory", response_model=list[ProductInventorySchema])
+@router.get("/product-inventory", response_model=List[ProductInventorySchema])
 async def read_all_product_inventory():
     """
     Get all product inventory.
