@@ -30,7 +30,7 @@ const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className="modal-overlay">
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-screen items-center justify-center p-2 sm:p-4">
         {/* Backdrop */}
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
@@ -38,7 +38,7 @@ const Modal: React.FC<ModalProps> = ({
         />
         
         {/* Modal */}
-        <div className={`modal-element ${sizeClasses[size]}`}>
+        <div className={`modal-element ${sizeClasses[size]} mx-2 sm:mx-4`}>
           {/* Header */}
           {title && (
             <div className="modal-header">
