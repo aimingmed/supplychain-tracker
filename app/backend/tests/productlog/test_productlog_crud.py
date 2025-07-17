@@ -1,9 +1,13 @@
 from unittest.mock import AsyncMock, MagicMock, patch
+from datetime import date, datetime
 
 import pytest
 
 from api.productlog import crud
-from models.productlog.pydantic import ProductDetailsSchema as ProductDetailsCreateSchema
+from models.productlog.pydantic import (
+    ProductDetailsSchema as ProductDetailsCreateSchema,
+    ProductInventoryCreateSchema
+)
 
 
 # Sample test data
@@ -44,19 +48,32 @@ SAMPLE_PRODUCT_DICT = {
 }
 
 SAMPLE_INVENTORY_DATA = {
-    "batchid_internal": "B001",
-    "batchid_external": "EXT001",
     "basicmediumid": "BM001",
     "addictiveid": "AD001",
     "quantityinstock": 50,
-    "productiondate": "2025-01-01T00:00:00",
+    "productiondate": "2025-01-01",  # Fixed: use date format
     "imageurl": "http://example.com/image.jpg",
     "status": "AVAILABLE",
     "productiondatetime": "2025-01-01T12:00:00",
     "producedby": "John Doe",
     "to_show": True,
-    "lastupdated": "2025-01-02T12:00:00",
     "lastupdatedby": "Jane Doe",
+    "coa_appearance": "Clear and colorless",
+    "coa_clarity": True,
+    "coa_osmoticpressure": 300.5,
+    "coa_ph": 7.4,
+    "coa__mycoplasma": False,
+    "coa_sterility": True,
+    "coa_fillingvolumedifference": True,
+}
+
+SAMPLE_INVENTORY_CREATE_DATA = ProductInventoryCreateSchema(**SAMPLE_INVENTORY_DATA)
+
+SAMPLE_INVENTORY_RESPONSE_DATA = {
+    "batchid_internal": "BM001-AD001-ABC123",
+    "batchid_external": "BM001-AD001",
+    "lastupdated": "2025-01-02T12:00:00",
+    **SAMPLE_INVENTORY_DATA
 }
 
 
@@ -114,7 +131,7 @@ async def test_get_all_product_inventory_success(mock_schema, mock_model):
     # Arrange
     mock_queryset = AsyncMock()
     mock_model.all.return_value = mock_queryset
-    expected_result = [SAMPLE_INVENTORY_DATA]
+    expected_result = [SAMPLE_INVENTORY_RESPONSE_DATA]
     mock_schema.from_queryset = AsyncMock(return_value=expected_result)
 
     # Act
@@ -126,7 +143,7 @@ async def test_get_all_product_inventory_success(mock_schema, mock_model):
     assert result == expected_result
     assert isinstance(result, list)
     assert len(result) == 1
-    assert result[0]["batchid_internal"] == "B001"
+    assert result[0]["batchid_internal"] == "BM001-AD001-ABC123"
 
 
 @pytest.mark.asyncio
@@ -407,16 +424,133 @@ async def test_get_product_details_by_id_empty_string(mock_model):
     mock_model.get_or_none.assert_awaited_once_with(productid="")
 
 
+# Tests for ProductInventory CRUD operations
+
 @pytest.mark.asyncio
-@patch("api.productlog.crud.ProductDetails")
-async def test_delete_product_details_empty_string(mock_model):
-    """Test delete_product_details with empty string ID."""
+@patch("api.productlog.crud.ProductInventory")
+@patch("api.productlog.crud.ProductInventorySchema")
+async def test_create_product_inventory_success(mock_schema, mock_model):
+    """Test successful creation of product inventory."""
+    # Arrange
+    mock_created_obj = MagicMock()
+    mock_model.create = AsyncMock(return_value=mock_created_obj)
+    expected_result = SAMPLE_INVENTORY_RESPONSE_DATA
+    mock_schema.from_tortoise_orm = AsyncMock(return_value=expected_result)
+
+    # Act
+    result = await crud.create_product_inventory(SAMPLE_INVENTORY_CREATE_DATA)
+
+    # Assert
+    mock_model.create.assert_awaited_once()
+    mock_schema.from_tortoise_orm.assert_awaited_once_with(mock_created_obj)
+    assert result == expected_result
+
+
+@pytest.mark.asyncio
+@patch("api.productlog.crud.ProductInventory")
+@patch("api.productlog.crud.ProductInventorySchema")
+async def test_get_product_inventory_by_id_success(mock_schema, mock_model):
+    """Test successful retrieval of product inventory by ID."""
+    # Arrange
+    mock_inventory = MagicMock()
+    mock_model.get_or_none = AsyncMock(return_value=mock_inventory)
+    expected_result = SAMPLE_INVENTORY_RESPONSE_DATA
+    mock_schema.from_tortoise_orm = AsyncMock(return_value=expected_result)
+
+    # Act
+    result = await crud.get_product_inventory_by_id("BATCH123")
+
+    # Assert
+    mock_model.get_or_none.assert_awaited_once_with(batchid_internal="BATCH123")
+    mock_schema.from_tortoise_orm.assert_awaited_once_with(mock_inventory)
+    assert result == expected_result
+
+
+@pytest.mark.asyncio
+@patch("api.productlog.crud.ProductInventory")
+async def test_get_product_inventory_by_id_not_found(mock_model):
+    """Test get_product_inventory_by_id when inventory is not found."""
     # Arrange
     mock_model.get_or_none = AsyncMock(return_value=None)
 
     # Act & Assert
     with pytest.raises(ValueError) as exc_info:
-        await crud.delete_product_details("")
+        await crud.get_product_inventory_by_id("NONEXISTENT")
     
-    assert "Product with ID  not found" in str(exc_info.value)
-    mock_model.get_or_none.assert_awaited_once_with(productid="")
+    assert "Product inventory with batch ID NONEXISTENT not found" in str(exc_info.value)
+    mock_model.get_or_none.assert_awaited_once_with(batchid_internal="NONEXISTENT")
+
+
+@pytest.mark.asyncio
+@patch("api.productlog.crud.ProductInventory")
+@patch("api.productlog.crud.ProductInventorySchema")
+async def test_update_product_inventory_success(mock_schema, mock_model):
+    """Test successful update of product inventory."""
+    # Arrange
+    mock_inventory = MagicMock()
+    mock_inventory.update_from_dict = AsyncMock()
+    mock_inventory.save = AsyncMock()
+    mock_model.get_or_none = AsyncMock(return_value=mock_inventory)
+    
+    updated_data = ProductInventoryCreateSchema(**{**SAMPLE_INVENTORY_DATA, "quantityinstock": 75})
+    expected_result = {**SAMPLE_INVENTORY_RESPONSE_DATA, "quantityinstock": 75}
+    mock_schema.from_tortoise_orm = AsyncMock(return_value=expected_result)
+
+    # Act
+    result = await crud.update_product_inventory("BATCH123", updated_data)
+
+    # Assert
+    mock_model.get_or_none.assert_awaited_once_with(batchid_internal="BATCH123")
+    mock_inventory.update_from_dict.assert_awaited_once()
+    mock_inventory.save.assert_awaited_once()
+    mock_schema.from_tortoise_orm.assert_awaited_once_with(mock_inventory)
+    assert result == expected_result
+
+
+@pytest.mark.asyncio
+@patch("api.productlog.crud.ProductInventory")
+async def test_update_product_inventory_not_found(mock_model):
+    """Test update_product_inventory when inventory is not found."""
+    # Arrange
+    mock_model.get_or_none = AsyncMock(return_value=None)
+    updated_data = ProductInventoryCreateSchema(**SAMPLE_INVENTORY_DATA)
+
+    # Act & Assert
+    with pytest.raises(ValueError) as exc_info:
+        await crud.update_product_inventory("NONEXISTENT", updated_data)
+    
+    assert "Product inventory with batch ID NONEXISTENT not found" in str(exc_info.value)
+    mock_model.get_or_none.assert_awaited_once_with(batchid_internal="NONEXISTENT")
+
+
+@pytest.mark.asyncio
+@patch("api.productlog.crud.ProductInventory")
+async def test_delete_product_inventory_success(mock_model):
+    """Test successful deletion of product inventory."""
+    # Arrange
+    mock_inventory = MagicMock()
+    mock_inventory.delete = AsyncMock()
+    mock_model.get_or_none = AsyncMock(return_value=mock_inventory)
+
+    # Act
+    result = await crud.delete_product_inventory("BATCH123")
+
+    # Assert
+    mock_model.get_or_none.assert_awaited_once_with(batchid_internal="BATCH123")
+    mock_inventory.delete.assert_awaited_once()
+    assert result == {"message": "Product inventory BATCH123 deleted successfully", "batch_id": "BATCH123"}
+
+
+@pytest.mark.asyncio
+@patch("api.productlog.crud.ProductInventory")
+async def test_delete_product_inventory_not_found(mock_model):
+    """Test delete_product_inventory when inventory is not found."""
+    # Arrange
+    mock_model.get_or_none = AsyncMock(return_value=None)
+
+    # Act & Assert
+    with pytest.raises(ValueError) as exc_info:
+        await crud.delete_product_inventory("NONEXISTENT")
+    
+    assert "Product inventory with batch ID NONEXISTENT not found" in str(exc_info.value)
+    mock_model.get_or_none.assert_awaited_once_with(batchid_internal="NONEXISTENT")
