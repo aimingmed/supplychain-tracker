@@ -1,3 +1,4 @@
+export { default as Login } from './Login';
 export { default as ProductManagement } from './ProductManagement';
 export { default as InventoryManagement } from './InventoryManagement';
 export { default as TaskManagement } from './TaskManagement';

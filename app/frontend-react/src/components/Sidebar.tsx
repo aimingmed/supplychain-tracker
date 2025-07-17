@@ -17,9 +17,10 @@ import type { MenuItem } from '../types';
 interface SidebarProps {
   collapsed?: boolean;
   onToggle?: () => void;
+  isMobile?: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle }) => {
+const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, isMobile = false }) => {
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['production']);
 
   const menuItems: MenuItem[] = [
@@ -60,7 +61,11 @@ const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle }) => {
   };
 
   return (
-    <aside className={`sidebar-element transition-all duration-300 ${collapsed ? 'w-16' : 'w-64'}`}>
+    <aside className={`sidebar-element transition-all duration-300 ${
+      collapsed ? 'w-16' : 'w-64'
+    } ${
+      isMobile ? 'fixed left-0 top-0 h-full z-40 transform' + (collapsed ? ' -translate-x-full' : ' translate-x-0') : ''
+    }`}>
       {/* Logo Section */}
       <div className="flex items-center p-4 border-b border-gray-200">
         {!collapsed && (
