@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell, HelpCircle, ChevronDown, Menu } from 'lucide-react';
 import type { UserResponse } from '../services/authApi';
 
@@ -15,6 +16,7 @@ const Topbar: React.FC<TopbarProps> = ({
   onMenuToggle,
   showMenuButton = false
 }) => {
+  const navigate = useNavigate();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [helpMenuOpen, setHelpMenuOpen] = useState(false);
   const [notificationMenuOpen, setNotificationMenuOpen] = useState(false);
@@ -29,6 +31,11 @@ const Topbar: React.FC<TopbarProps> = ({
 
   const currentUser = user || defaultUser;
   const avatar = 'https://tutor-test.aimingmed.com/sampleregister/assets/panda-CUwKr6bp.png';
+
+  const handleProfileClick = () => {
+    setUserMenuOpen(false);
+    navigate('/profile');
+  };
 
   return (
     <header className="topbar-element">
@@ -118,7 +125,10 @@ const Topbar: React.FC<TopbarProps> = ({
                 <span className="text-sm sm:text-base font-medium">{currentUser.username}</span>
                 <span className="text-xs sm:text-sm text-gray-600">{currentUser.email}</span>
               </div>
-              <button className="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm hover:bg-gray-50">
+              <button 
+                className="w-full text-left px-3 sm:px-4 py-2 text-xs sm:text-sm hover:bg-gray-50"
+                onClick={handleProfileClick}
+              >
                 个人资料
               </button>
               <button 

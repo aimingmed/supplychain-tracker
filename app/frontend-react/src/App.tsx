@@ -9,7 +9,8 @@ import {
   TaskManagement,
   DemandManagement,
   MaterialManagement,
-  ScrapManagement
+  ScrapManagement,
+  UserProfile
 } from './pages';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
               <Route path="/demand-management" element={<DemandManagement />} />
               <Route path="/material-management" element={<MaterialManagement />} />
               <Route path="/scrap-management" element={<ScrapManagement />} />
+              <Route path="/profile" element={<UserProfile />} />
             </Route>
           </Routes>
         </div>
