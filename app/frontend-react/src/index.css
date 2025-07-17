@@ -179,3 +179,86 @@
     @apply flex items-center justify-end gap-2 p-6 border-t border-gray-200;
   }
 }
+
+@layer utilities {
+  /* Login specific styles */
+  .login-container {
+    @apply min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8;
+  }
+  
+  .login-card {
+    @apply bg-white rounded-lg shadow-element p-8 w-full max-w-md;
+  }
+  
+  .login-logo {
+    @apply mx-auto h-16 w-auto mb-6;
+  }
+  
+  .login-title {
+    @apply text-center text-3xl font-normal text-gray-900 mb-2;
+  }
+  
+  .login-subtitle {
+    @apply text-center text-sm text-gray-600 mb-8;
+  }
+  
+  .login-form {
+    @apply space-y-6;
+  }
+  
+  .login-input-group {
+    @apply space-y-2;
+  }
+  
+  .login-input-label {
+    @apply block text-sm font-medium text-gray-700;
+  }
+  
+  .password-input-container {
+    @apply relative;
+  }
+  
+  .password-toggle-btn {
+    @apply absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200;
+  }
+  
+  .login-options {
+    @apply flex items-center justify-between;
+  }
+  
+  .remember-me {
+    @apply flex items-center;
+  }
+  
+  .remember-me-checkbox {
+    @apply h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded;
+  }
+  
+  .remember-me-label {
+    @apply ml-2 block text-sm text-gray-700;
+  }
+  
+  .forgot-password-link {
+    @apply text-primary-600 hover:text-primary-500 transition-colors duration-200 text-sm;
+  }
+  
+  .login-submit-btn {
+    @apply w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200;
+  }
+  
+  .login-footer {
+    @apply text-center mt-8;
+  }
+  
+  .login-footer-text {
+    @apply text-xs text-gray-500;
+  }
+  
+  .error-message {
+    @apply bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded text-sm;
+  }
+  
+  .loading-spinner {
+    @apply animate-spin rounded-full h-4 w-4 border-b-2 border-white;
+  }
+}
