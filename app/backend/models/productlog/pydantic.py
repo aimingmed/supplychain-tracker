@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from enum import Enum
 from typing import List, Optional
 
@@ -82,17 +82,70 @@ class ProductDetailsSchema(BaseModel):
     leadtime: int = Field(..., example=5, description="交货时间（天）")
 
 
-class ProductInventorySchema(ProductDetailsSchema):
-    batchid_internal: str = Field(..., max_length=70, description="内部批次号")
-    batchid_external: str = Field(..., max_length=70, description="外部批次号")
+class ProductInventoryCreateSchema(BaseModel):
+    """Schema for creating ProductInventory - excludes auto-generated fields"""
     basicmediumid: str = Field(..., max_length=7)
     addictiveid: str = Field(..., max_length=7)
     quantityinstock: int = Field(...)
-    productiondate: datetime = Field(...)
+    productiondate: date = Field(...)
     imageurl: str = Field(...)
     status: str = Field(..., max_length=20)
     productiondatetime: datetime = Field(..., description="生产时间")
     producedby: str = Field(..., max_length=50, description="生产人员")
+    coa_appearance: Optional[str] = Field(None, max_length=100, description="外观描述")
+    coa_clarity: Optional[bool] = Field(None, description="透明度")
+    coa_osmoticpressure: Optional[float] = Field(None, description="渗透压")
+    coa_ph: Optional[float] = Field(None, description="pH值")
+    coa__mycoplasma: Optional[bool] = Field(None, description="支原体检测")
+    coa_sterility: Optional[bool] = Field(None, description="无菌检测")
+    coa_fillingvolumedifference: Optional[bool] = Field(None, description="装量差异限度")
+    to_show: bool = Field(default=True, description="是否展示")
+    lastupdatedby: str = Field(..., max_length=50)
+
+    class Config:
+        orm_mode = True
+        schema_extra = {
+            "example": {
+                "basicmediumid": "BM001",
+                "addictiveid": "AD001",
+                "quantityinstock": 50,
+                "productiondate": "2025-01-01",
+                "imageurl": "http://example.com/image.jpg",
+                "status": "AVAILABLE",
+                "productiondatetime": "2025-01-01T12:00:00",
+                "producedby": "John Doe",
+                "coa_appearance": "Clear and colorless",
+                "coa_clarity": True,
+                "coa_osmoticpressure": 300.5,
+                "coa_ph": 7.4,
+                "coa__mycoplasma": False,
+                "coa_sterility": True,
+                "coa_fillingvolumedifference": True,
+                "to_show": True,
+                "lastupdatedby": "Jane Doe",
+            }
+        }
+
+
+class ProductInventorySchema(BaseModel):
+    """Schema for ProductInventory - includes all fields for read operations"""
+    batchid_internal: Optional[str] = Field(None, max_length=70, description="内部批次号（自动生成）")
+    batchid_external: Optional[str] = Field(None, max_length=70, description="外部批次号（自动生成）")
+    basicmediumid: str = Field(..., max_length=7)
+    addictiveid: str = Field(..., max_length=7)
+    quantityinstock: int = Field(...)
+    productiondate: date = Field(...)
+    imageurl: str = Field(...)
+    status: str = Field(..., max_length=20)
+    productiondatetime: datetime = Field(..., description="生产时间")
+    producedby: str = Field(..., max_length=50, description="生产人员")
+    coa_appearance: Optional[str] = Field(None, max_length=100, description="外观描述")
+    coa_clarity: Optional[bool] = Field(None, description="透明度")
+    coa_osmoticpressure: Optional[float] = Field(None, description="渗透压")
+    coa_ph: Optional[float] = Field(None, description="pH值")
+    coa__mycoplasma: Optional[bool] = Field(None, description="支原体检测")
+    coa_sterility: Optional[bool] = Field(None, description="无菌检测")
+    coa_fillingvolumedifference: Optional[bool] = Field(None, description="装量差异限度")
     to_show: bool = Field(default=True, description="是否展示")
     lastupdated: datetime = Field(...)
     lastupdatedby: str = Field(..., max_length=50)
@@ -101,16 +154,21 @@ class ProductInventorySchema(ProductDetailsSchema):
         orm_mode = True
         schema_extra = {
             "example": {
-                "batchid_internal": "P12345-001",
-                "batchid_external": "P12345-001",
                 "basicmediumid": "BM001",
                 "addictiveid": "AD001",
                 "quantityinstock": 50,
-                "productiondate": "2025-01-01T00:00:00",
+                "productiondate": "2025-01-01",
                 "imageurl": "http://example.com/image.jpg",
                 "status": "AVAILABLE",
                 "productiondatetime": "2025-01-01T12:00:00",
                 "producedby": "John Doe",
+                "coa_appearance": "Clear and colorless",
+                "coa_clarity": True,
+                "coa_osmoticpressure": 300.5,
+                "coa_ph": 7.4,
+                "coa__mycoplasma": False,
+                "coa_sterility": True,
+                "coa_fillingvolumedifference": True,
                 "to_show": True,
                 "lastupdated": "2025-01-02T12:00:00",
                 "lastupdatedby": "Jane Doe",

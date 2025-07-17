@@ -6,9 +6,14 @@ from api.productlog.crud import (create_product_details,
                                  get_all_product_inventory,
                                  update_product_details,
                                  get_product_details_by_id,
-                                 delete_product_details)
+                                 delete_product_details,
+                                 create_product_inventory,
+                                 get_product_inventory_by_id,
+                                 update_product_inventory,
+                                 delete_product_inventory)
 from models.productlog.pydantic import (ProductDetailsSchema,
-                                        ProductInventorySchema)
+                                        ProductInventorySchema,
+                                        ProductInventoryCreateSchema)
 from models.requests.authentication import AuthHandler
 
 router = APIRouter()
@@ -157,6 +162,140 @@ async def delete_product_details_endpoint(
     
     try:
         return await delete_product_details(product_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# ProductInventory endpoints
+@router.post("/product-inventory", response_model=ProductInventorySchema)
+async def create_product_inventory_endpoint(
+    data: ProductInventoryCreateSchema, 
+    auth_details=Depends(auth_handler.auth_wrapper)
+):
+    """
+    Create a new product inventory record.
+    
+    Args:
+        data (ProductInventoryCreateSchema): The product inventory to create.
+        auth_details (dict, optional): Authentication details containing user roles and username. 
+            Defaults to Depends(auth_handler.auth_wrapper).
+    
+    Raises:
+        HTTPException: If the user does not have permission to create inventory.
+        HTTPException: If there's an error creating the inventory.
+    
+    Returns:
+        ProductInventorySchema: The created product inventory.
+    """
+    list_of_roles = auth_details["list_of_roles"]
+    
+    # Check if user has ADMIN, PRODUCTION_MANAGER, or PRODUCER role
+    if "ADMIN" not in list_of_roles and "PRODUCTION_MANAGER" not in list_of_roles and "PRODUCER" not in list_of_roles:
+        raise HTTPException(
+            status_code=403, 
+            detail="You do not have permission to create inventory. Only ADMIN, PRODUCTION_MANAGER, or PRODUCER roles are allowed."
+        )
+    
+    try:
+        return await create_product_inventory(data)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/product-inventory/{batch_id}", response_model=ProductInventorySchema)
+async def get_product_inventory_endpoint(batch_id: str):
+    """
+    Get a single product inventory record by batch ID.
+    
+    Args:
+        batch_id (str): The internal batch ID of the inventory to retrieve.
+    
+    Raises:
+        HTTPException: If the inventory is not found.
+    
+    Returns:
+        ProductInventorySchema: The product inventory.
+    """
+    try:
+        return await get_product_inventory_by_id(batch_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.put("/product-inventory/{batch_id}", response_model=ProductInventorySchema)
+async def update_product_inventory_endpoint(
+    batch_id: str,
+    data: ProductInventoryCreateSchema, 
+    auth_details=Depends(auth_handler.auth_wrapper)
+):
+    """
+    Update an existing product inventory record.
+    
+    Args:
+        batch_id (str): The internal batch ID of the inventory to update.
+        data (ProductInventoryCreateSchema): The updated product inventory.
+        auth_details (dict, optional): Authentication details containing user roles and username. 
+            Defaults to Depends(auth_handler.auth_wrapper).
+    
+    Raises:
+        HTTPException: If the user does not have permission to update inventory.
+        HTTPException: If the inventory is not found.
+        HTTPException: If there's an error updating the inventory.
+    
+    Returns:
+        ProductInventorySchema: The updated product inventory.
+    """
+    list_of_roles = auth_details["list_of_roles"]
+    
+    # Check if user has ADMIN, PRODUCTION_MANAGER, or PRODUCER role
+    if "ADMIN" not in list_of_roles and "PRODUCTION_MANAGER" not in list_of_roles and "PRODUCER" not in list_of_roles:
+        raise HTTPException(
+            status_code=403, 
+            detail="You do not have permission to update inventory. Only ADMIN, PRODUCTION_MANAGER, or PRODUCER roles are allowed."
+        )
+    
+    try:
+        return await update_product_inventory(batch_id, data)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.delete("/product-inventory/{batch_id}")
+async def delete_product_inventory_endpoint(
+    batch_id: str,
+    auth_details=Depends(auth_handler.auth_wrapper)
+):
+    """
+    Delete an existing product inventory record.
+    
+    Args:
+        batch_id (str): The internal batch ID of the inventory to delete.
+        auth_details (dict, optional): Authentication details containing user roles and username. 
+            Defaults to Depends(auth_handler.auth_wrapper).
+    
+    Raises:
+        HTTPException: If the user does not have permission to delete inventory.
+        HTTPException: If the inventory is not found.
+        HTTPException: If there's an error deleting the inventory.
+    
+    Returns:
+        dict: Success message with deleted batch ID.
+    """
+    list_of_roles = auth_details["list_of_roles"]
+    
+    # Check if user has ADMIN, PRODUCTION_MANAGER, or PRODUCER role
+    if "ADMIN" not in list_of_roles and "PRODUCTION_MANAGER" not in list_of_roles and "PRODUCER" not in list_of_roles:
+        raise HTTPException(
+            status_code=403, 
+            detail="You do not have permission to delete inventory. Only ADMIN, PRODUCTION_MANAGER, or PRODUCER roles are allowed."
+        )
+    
+    try:
+        return await delete_product_inventory(batch_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:

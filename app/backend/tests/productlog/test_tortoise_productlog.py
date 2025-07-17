@@ -8,7 +8,7 @@ from models.productlog.tortoise import ProductDetails, ProductInventory
 @pytest.mark.asyncio
 async def test_productdetails_str():
     obj = ProductDetails()
-    obj.productname = "Test Product"
+    obj.productnameen = "Test Product"  # Fixed: use actual field name
     assert str(obj) == "Test Product"
 
 
@@ -17,8 +17,9 @@ async def test_productdetails_str():
 async def test_productinventory_str():
     obj = ProductInventory()
     obj.batchid_external = "BATCH123"
-    obj.productname = "Test Product"
-    assert str(obj) == "BatchID: BATCH123, Product: Test Product"
+    obj.basicmediumid = "BM001"
+    obj.addictiveid = "AD001"
+    assert str(obj) == "BatchID: BATCH123, BasicMedium: BM001, Additive: AD001"
 
 
 # Test save logic for ProductInventory

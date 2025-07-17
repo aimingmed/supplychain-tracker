@@ -25,7 +25,7 @@ class ProductDetails(models.Model):
     leadtime = fields.IntField()
 
     def __str__(self):
-        return self.productname
+        return self.productnameen
 
 
 class ProductInventory(models.Model):
@@ -39,6 +39,13 @@ class ProductInventory(models.Model):
     status = fields.CharField(max_length=20)
     productiondatetime = fields.DatetimeField(description="生产时间")
     producedby = fields.CharField(max_length=50, description="生产人员")
+    coa_appearance = fields.CharField(max_length=100, description="外观描述")
+    coa_clarity = fields.BooleanField(description="透明度")
+    coa_osmoticpressure = fields.FloatField(description="渗透压")
+    coa_ph = fields.FloatField(description="pH值")
+    coa__mycoplasma = fields.BooleanField(description="支原体检测")
+    coa_sterility = fields.BooleanField(description="无菌检测")
+    coa_fillingvolumedifference = fields.BooleanField(description="装量差异限度")
     to_show = fields.BooleanField(default=True, description="是否展示")
     lastupdated = fields.DatetimeField(auto_now=True)
     lastupdatedby = fields.CharField(max_length=50)
@@ -57,7 +64,7 @@ class ProductInventory(models.Model):
         await super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"BatchID: {self.batchid_external}, Product: {self.productname}"
+        return f"BatchID: {self.batchid_external}, BasicMedium: {self.basicmediumid}, Additive: {self.addictiveid}"
 
     class Meta:
         table = "product_inventory"
