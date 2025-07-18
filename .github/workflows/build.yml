@@ -55,6 +55,9 @@ jobs:
           - IMAGE_NAME: databasesctracker
             BUILD_CONTEXT: ./app/database
             DOCKERFILE: ./app/database/Dockerfile
+          - IMAGE_NAME: frontendreacttracker
+            BUILD_CONTEXT: ./app/frontend-react
+            DOCKERFILE: ./app/frontend-react/Dockerfile.prod
             
     # Call the reusable workflow
     uses: ./.github/workflows/template_build.yml # Path to the reusable workflow file
