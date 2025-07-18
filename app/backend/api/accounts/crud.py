@@ -22,12 +22,14 @@ async def create_account(payload: AccountPayloadSchema) -> int:
     Returns:
         int: The username of the created account.
     """
+    from datetime import datetime
+    
     account = UsersAccount(
         username=payload.username.lower(),
         email=payload.email.lower(),
         password=auth_handler.get_password_hash(payload.password),
         list_of_roles=payload.list_of_roles,
-        created_at=payload.created_at,
+        created_at=payload.created_at or datetime.utcnow(),
         is_verified=payload.is_verified,
         last_login=payload.last_login,
     )
@@ -69,4 +71,17 @@ async def get_all() -> List:
         List: A list of all user accounts.
     """
     accounts = await UsersAccount.all().values()
+    return accounts
+
+
+async def get_users_by_role(role: str) -> List:
+    """Retrieve all user accounts with a specific role.
+
+    Args:
+        role (str): The role to filter by (e.g., "PRODUCER").
+
+    Returns:
+        List: A list of user accounts with the specified role.
+    """
+    accounts = await UsersAccount.filter(list_of_roles__contains=[role]).values()
     return accounts

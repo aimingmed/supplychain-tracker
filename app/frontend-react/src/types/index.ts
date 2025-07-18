@@ -106,6 +106,30 @@ export interface ProductInventory extends ProductDetails {
   coa_fillingvolumedifference?: boolean;
 }
 
+// ProductInventory create request type that matches backend schema
+export interface ProductInventoryCreateRequest {
+  productid: string;
+  basicmediumid: string;
+  addictiveid: string;
+  quantityinstock: number;
+  productiondate: string; // YYYY-MM-DD format
+  status: InventoryStatusType;
+  productiondatetime: string; // ISO datetime string
+  producedby: string;
+  to_show: boolean;
+  lastupdatedby: string;
+  // Optional fields
+  imageurl?: string;
+  // COA fields (optional)
+  coa_appearance?: string;
+  coa_clarity?: boolean;
+  coa_osmoticpressure?: number;
+  coa_ph?: number;
+  coa__mycoplasma?: boolean;
+  coa_sterility?: boolean;
+  coa_fillingvolumedifference?: boolean;
+}
+
 // Legacy interface for backward compatibility
 export interface Product {
   id: number;

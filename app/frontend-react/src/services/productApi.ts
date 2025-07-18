@@ -1,4 +1,4 @@
-import type { ProductDetails, ProductInventory } from '../types';
+import type { ProductDetails, ProductInventory, ProductInventoryCreateRequest } from '../types';
 import AuthApi from './authApi';
 
 // In Vite, environment variables are accessed via import.meta.env and must be prefixed with VITE_
@@ -87,7 +87,7 @@ class ProductApi {
   }
 
   // Product Inventory API methods
-  static async createProductInventory(data: Omit<ProductInventory, 'batchid_internal' | 'batchid_external' | 'lastupdated'>): Promise<ProductInventory> {
+  static async createProductInventory(data: ProductInventoryCreateRequest): Promise<ProductInventory> {
     const token = AuthApi.getToken();
     
     const response = await fetch(`${API_BASE_URL}/productlog/product-inventory`, {
@@ -101,6 +101,15 @@ class ProductApi {
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ detail: 'Failed to create inventory' }));
+      
+      // Handle validation errors with more detail
+      if (response.status === 400 || response.status === 422) {
+        // Extract validation error details if available
+        const errorMessage = errorData.detail || errorData.message || `Validation error: ${response.statusText}`;
+        console.error('Validation error details:', errorData);
+        throw new Error(errorMessage);
+      }
+      
       throw new Error(errorData.detail || `Failed to create inventory: ${response.statusText}`);
     }
     return response.json();

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Search, RotateCcw, Edit, RefreshCw, Plus, Eye, Trash2 } from 'lucide-react';
-import { Card, Button, Input, Table, Modal, Select } from '../components/ui';
-import type { ProductInventory, InventoryStatusType } from '../types';
+import { Card, Button, Input, Table, Modal, Select, Autocomplete } from '../components/ui';
+import type { ProductInventory, InventoryStatusType, ProductInventoryCreateRequest, ProductDetails } from '../types';
+import type { UserResponse } from '../services/authApi';
 import ProductApi from '../services/productApi';
+import AuthApi from '../services/authApi';
 
 const InventoryManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -524,6 +526,10 @@ const CreateInventoryModal: React.FC<CreateInventoryModalProps> = ({
   onSuccess
 }) => {
   const [loading, setLoading] = useState(false);
+  const [productDetailsLoading, setProductDetailsLoading] = useState(false);
+  const [producersLoading, setProducersLoading] = useState(false);
+  const [productDetails, setProductDetails] = useState<ProductDetails[]>([]);
+  const [producers, setProducers] = useState<UserResponse[]>([]);
   const [formData, setFormData] = useState({
     productid: '',
     basicmediumid: '',
@@ -534,19 +540,164 @@ const CreateInventoryModal: React.FC<CreateInventoryModalProps> = ({
     status: 'AVAILABLE(可用)' as InventoryStatusType,
     productiondatetime: '',
     producedby: '',
-    lastupdatedby: ''
+    lastupdatedby: '',
+    to_show: true,
+    // COA fields (optional)
+    coa_appearance: '',
+    coa_clarity: undefined as boolean | undefined,
+    coa_osmoticpressure: undefined as number | undefined,
+    coa_ph: undefined as number | undefined,
+    coa__mycoplasma: undefined as boolean | undefined,
+    coa_sterility: undefined as boolean | undefined,
+    coa_fillingvolumedifference: undefined as boolean | undefined
   });
+
+  // Load product details for autocomplete
+  const loadProductDetails = async () => {
+    try {
+      setProductDetailsLoading(true);
+      const data = await ProductApi.getAllProductDetails();
+      setProductDetails(data);
+    } catch (error) {
+      console.error('Error loading product details:', error);
+    } finally {
+      setProductDetailsLoading(false);
+    }
+  };
+
+  // Load producers for autocomplete
+  const loadProducers = async () => {
+    try {
+      setProducersLoading(true);
+      const data = await AuthApi.getUsersByRole('PRODUCER');
+      setProducers(data);
+    } catch (error) {
+      console.error('Error loading producers:', error);
+    } finally {
+      setProducersLoading(false);
+    }
+  };
+
+  // Handle product selection to auto-populate related fields
+  const handleProductSelect = (productId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      productid: productId,
+      // You could auto-populate other fields here if needed
+      // For example, if you have default values based on product type
+    }));
+  };
+
+  // Handle producer selection
+  const handleProducerSelect = (username: string) => {
+    setFormData(prev => ({
+      ...prev,
+      producedby: username,
+      // Auto-populate lastupdatedby if it's empty
+      lastupdatedby: prev.lastupdatedby || username
+    }));
+  };
+
+  // Reset form when modal opens
+  React.useEffect(() => {
+    if (isOpen) {
+      const now = new Date();
+      const dateStr = now.toISOString().split('T')[0]; // YYYY-MM-DD
+      const datetimeStr = now.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+      
+      setFormData({
+        productid: '',
+        basicmediumid: '',
+        addictiveid: '',
+        quantityinstock: 0,
+        productiondate: dateStr,
+        imageurl: '',
+        status: 'AVAILABLE(可用)' as InventoryStatusType,
+        productiondatetime: datetimeStr,
+        producedby: '',
+        lastupdatedby: '',
+        to_show: true,
+        // COA fields (optional)
+        coa_appearance: '',
+        coa_clarity: undefined as boolean | undefined,
+        coa_osmoticpressure: undefined as number | undefined,
+        coa_ph: undefined as number | undefined,
+        coa__mycoplasma: undefined as boolean | undefined,
+        coa_sterility: undefined as boolean | undefined,
+        coa_fillingvolumedifference: undefined as boolean | undefined
+      });
+
+      // Load product details for autocomplete
+      loadProductDetails();
+      loadProducers();
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
-      // Note: This would need the full ProductInventory data structure
-      // For now, this is a simplified version
-      await ProductApi.createProductInventory(formData as any);
+      
+      // Basic validation
+      if (!formData.productid.trim()) {
+        alert('请输入产品ID');
+        return;
+      }
+      if (!formData.basicmediumid.trim()) {
+        alert('请输入基础培养基ID');
+        return;
+      }
+      if (!formData.addictiveid.trim()) {
+        alert('请输入添加剂ID');
+        return;
+      }
+      if (!formData.producedby.trim()) {
+        alert('请输入生产人员');
+        return;
+      }
+      if (!formData.productiondate) {
+        alert('请选择生产日期');
+        return;
+      }
+      if (!formData.productiondatetime) {
+        alert('请选择生产时间');
+        return;
+      }
+      
+      // Format the data to match backend schema
+      const inventoryData: ProductInventoryCreateRequest = {
+        productid: formData.productid,
+        basicmediumid: formData.basicmediumid,
+        addictiveid: formData.addictiveid,
+        quantityinstock: formData.quantityinstock,
+        productiondate: formData.productiondate, // Should be YYYY-MM-DD format
+        status: formData.status,
+        productiondatetime: formData.productiondatetime ? 
+          new Date(formData.productiondatetime).toISOString() : 
+          new Date().toISOString(),
+        producedby: formData.producedby,
+        lastupdatedby: formData.lastupdatedby || formData.producedby,
+        to_show: formData.to_show,
+        // Include imageurl only if provided
+        ...(formData.imageurl && formData.imageurl.trim() && { imageurl: formData.imageurl.trim() }),
+        // Only include COA fields if they have meaningful values (not empty strings or undefined)
+        ...(formData.coa_appearance && formData.coa_appearance.trim() && { coa_appearance: formData.coa_appearance.trim() }),
+        ...(formData.coa_clarity !== undefined && { coa_clarity: formData.coa_clarity }),
+        ...(formData.coa_osmoticpressure !== undefined && formData.coa_osmoticpressure !== null && { coa_osmoticpressure: formData.coa_osmoticpressure }),
+        ...(formData.coa_ph !== undefined && formData.coa_ph !== null && { coa_ph: formData.coa_ph }),
+        ...(formData.coa__mycoplasma !== undefined && { coa__mycoplasma: formData.coa__mycoplasma }),
+        ...(formData.coa_sterility !== undefined && { coa_sterility: formData.coa_sterility }),
+        ...(formData.coa_fillingvolumedifference !== undefined && { coa_fillingvolumedifference: formData.coa_fillingvolumedifference })
+      };
+      
+      console.log('Sending inventory data:', inventoryData); // Debug log
+      
+      await ProductApi.createProductInventory(inventoryData);
       onSuccess();
     } catch (error) {
       console.error('Error creating inventory:', error);
+      // Show a user-friendly error message
+      alert(`创建库存失败: ${error instanceof Error ? error.message : '未知错误'}`);
     } finally {
       setLoading(false);
     }
@@ -581,17 +732,25 @@ const CreateInventoryModal: React.FC<CreateInventoryModalProps> = ({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          <Input
+          <Autocomplete
             label="产品ID"
             value={formData.productid}
-            onChange={(e) => setFormData({...formData, productid: e.target.value})}
+            onChange={handleProductSelect}
+            options={productDetails.map(product => ({
+              value: product.productid,
+              label: product.productnamezh,
+              description: `${product.productnameen} | ${product.category} | ${product.specification}`
+            }))}
+            loading={productDetailsLoading}
             required
+            placeholder="选择或输入产品ID"
           />
           <Input
             label="基础培养基ID"
             value={formData.basicmediumid}
             onChange={(e) => setFormData({...formData, basicmediumid: e.target.value})}
             required
+            placeholder="如: BM001"
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
@@ -600,6 +759,7 @@ const CreateInventoryModal: React.FC<CreateInventoryModalProps> = ({
             value={formData.addictiveid}
             onChange={(e) => setFormData({...formData, addictiveid: e.target.value})}
             required
+            placeholder="如: AD001"
           />
           <Input
             label="库存数量"
@@ -618,6 +778,36 @@ const CreateInventoryModal: React.FC<CreateInventoryModalProps> = ({
             onChange={(e) => setFormData({...formData, productiondate: e.target.value})}
             required
           />
+          <Input
+            label="生产时间"
+            type="datetime-local"
+            value={formData.productiondatetime}
+            onChange={(e) => setFormData({...formData, productiondatetime: e.target.value})}
+            required
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Autocomplete
+            label="生产人员"
+            value={formData.producedby}
+            onChange={handleProducerSelect}
+            options={producers.map(producer => ({
+              value: producer.username,
+              label: producer.username,
+              description: producer.email
+            }))}
+            loading={producersLoading}
+            placeholder="选择生产人员"
+            required
+          />
+          <Input
+            label="最后更新人员"
+            value={formData.lastupdatedby}
+            onChange={(e) => setFormData({...formData, lastupdatedby: e.target.value})}
+            placeholder="默认与生产人员相同"
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <Select
             label="状态"
             value={formData.status}
@@ -625,19 +815,102 @@ const CreateInventoryModal: React.FC<CreateInventoryModalProps> = ({
             options={statusOptions}
             required
           />
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="to_show"
+              checked={formData.to_show}
+              onChange={(e) => setFormData({...formData, to_show: e.target.checked})}
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+            />
+            <label htmlFor="to_show" className="text-sm font-medium text-gray-700">
+              在系统中显示
+            </label>
+          </div>
         </div>
         <Input
-          label="生产人员"
-          value={formData.producedby}
-          onChange={(e) => setFormData({...formData, producedby: e.target.value})}
-          required
-        />
-        <Input
-          label="图片URL"
+          label="图片URL (可选)"
           value={formData.imageurl}
           onChange={(e) => setFormData({...formData, imageurl: e.target.value})}
-          placeholder="可选"
+          placeholder="输入产品图片URL (可选)"
         />
+        
+        {/* COA Section */}
+        <div className="pt-4 border-t border-gray-200">
+          <h4 className="text-md font-medium text-gray-900 mb-4">COA 检测信息 (可选)</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="外观"
+              value={formData.coa_appearance}
+              onChange={(e) => setFormData({...formData, coa_appearance: e.target.value})}
+              placeholder="描述产品外观"
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">透明度</label>
+              <Select
+                value={formData.coa_clarity === undefined ? '' : formData.coa_clarity.toString()}
+                onChange={(e) => setFormData({...formData, coa_clarity: e.target.value === '' ? undefined : e.target.value === 'true'})}
+                options={[
+                  { value: '', label: '未测试' },
+                  { value: 'true', label: '透明' },
+                  { value: 'false', label: '不透明' }
+                ]}
+              />
+            </div>
+            <Input
+              label="渗透压"
+              type="number"
+              step="0.01"
+              value={formData.coa_osmoticpressure || ''}
+              onChange={(e) => setFormData({...formData, coa_osmoticpressure: e.target.value ? Number(e.target.value) : undefined})}
+              placeholder="数值"
+            />
+            <Input
+              label="pH值"
+              type="number"
+              step="0.01"
+              value={formData.coa_ph || ''}
+              onChange={(e) => setFormData({...formData, coa_ph: e.target.value ? Number(e.target.value) : undefined})}
+              placeholder="数值"
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">支原体检测</label>
+              <Select
+                value={formData.coa__mycoplasma === undefined ? '' : formData.coa__mycoplasma.toString()}
+                onChange={(e) => setFormData({...formData, coa__mycoplasma: e.target.value === '' ? undefined : e.target.value === 'true'})}
+                options={[
+                  { value: '', label: '未测试' },
+                  { value: 'true', label: '阴性' },
+                  { value: 'false', label: '阳性' }
+                ]}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">无菌检测</label>
+              <Select
+                value={formData.coa_sterility === undefined ? '' : formData.coa_sterility.toString()}
+                onChange={(e) => setFormData({...formData, coa_sterility: e.target.value === '' ? undefined : e.target.value === 'true'})}
+                options={[
+                  { value: '', label: '未测试' },
+                  { value: 'true', label: '无菌' },
+                  { value: 'false', label: '有菌' }
+                ]}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">装量差异</label>
+              <Select
+                value={formData.coa_fillingvolumedifference === undefined ? '' : formData.coa_fillingvolumedifference.toString()}
+                onChange={(e) => setFormData({...formData, coa_fillingvolumedifference: e.target.value === '' ? undefined : e.target.value === 'true'})}
+                options={[
+                  { value: '', label: '未测试' },
+                  { value: 'true', label: '合格' },
+                  { value: 'false', label: '不合格' }
+                ]}
+              />
+            </div>
+          </div>
+        </div>
       </form>
     </Modal>
   );

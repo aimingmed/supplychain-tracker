@@ -51,6 +51,17 @@ class AuthApi {
     return response.json();
   }
 
+  static async getUsersByRole(role: string): Promise<UserResponse[]> {
+    const response = await this.makeAuthenticatedRequest(`${API_BASE_URL}/accounts/users/by-role/${role}`);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Failed to get users by role' }));
+      throw new Error(errorData.detail || 'Failed to get users by role');
+    }
+    
+    return response.json();
+  }
+
   static async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
     const response = await fetch(`${API_BASE_URL}/accounts/reset-password`, {
       method: 'POST',
