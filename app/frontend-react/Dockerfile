@@ -10,7 +10,7 @@ COPY . /usr/src/app
 #test the app
 # Copy dependency files and install dependencies
 RUN npm install && npm i --save-dev @types/jest
-ENV VITE_REACT_APP_BASE_URL=https://backend.astraowl.com/
+# ENV VITE_REACT_APP_BASE_URL=https://backend.astraowl.com/
 RUN npm run build
 
 ####### PRODUCTION IMAGE #######
