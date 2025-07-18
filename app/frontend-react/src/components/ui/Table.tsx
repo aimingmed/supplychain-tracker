@@ -53,75 +53,77 @@ const Table: React.FC<TableProps> = ({
 
   return (
     <div className={`overflow-x-auto ${className}`}>
-      <table className="table-element">
-        <thead className="table-header">
-          <tr>
-            {columns.map((column) => (
-              <th
-                key={column.key}
-                className={`table-header-cell ${getAlignClass(column.align)} ${
-                  column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
-                }`}
-                onClick={() => column.sortable && handleSort(column.key)}
-              >
-                <div className={`flex items-center gap-1 ${getHeaderFlexClass(column.align)}`}>
-                  {column.label}
-                  {column.sortable && (
-                    <svg
-                      className={`w-4 h-4 ${
-                        sortColumn === column.key
-                          ? sortDirection === 'asc'
-                            ? 'text-gray-900'
-                            : 'text-gray-900 rotate-180'
-                          : 'text-gray-400'
-                      }`}
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
+      <div className="min-w-full inline-block align-middle">
+        <table className="table-element min-w-full">
+          <thead className="table-header">
+            <tr>
+              {columns.map((column) => (
+                <th
+                  key={column.key}
+                  className={`table-header-cell ${getAlignClass(column.align)} ${
+                    column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+                  }`}
+                  onClick={() => column.sortable && handleSort(column.key)}
+                >
+                  <div className={`flex items-center gap-1 ${getHeaderFlexClass(column.align)}`}>
+                    {column.label}
+                    {column.sortable && (
+                      <svg
+                        className={`w-4 h-4 ${
+                          sortColumn === column.key
+                            ? sortDirection === 'asc'
+                              ? 'text-gray-900'
+                              : 'text-gray-900 rotate-180'
+                            : 'text-gray-400'
+                        }`}
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="table-body">
+            {loading ? (
+              <tr>
+                <td colSpan={columns.length} className="table-cell text-center text-gray-500">
+                  <div className="flex items-center justify-center py-8">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                  )}
-                </div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="table-body">
-          {loading ? (
-            <tr>
-              <td colSpan={columns.length} className="table-cell text-center text-gray-500">
-                <div className="flex items-center justify-center py-8">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  加载中...
-                </div>
-              </td>
-            </tr>
-          ) : data.length === 0 ? (
-            <tr>
-              <td colSpan={columns.length} className="table-cell text-center text-gray-500 py-8">
-                暂无数据
-              </td>
-            </tr>
-          ) : (
-            data.map((row, rowIndex) => (
-              <tr key={rowIndex} className="table-row">
-                {columns.map((column) => (
-                  <td key={column.key} className={`table-cell ${getAlignClass(column.align)}`}>
-                    {column.render ? column.render(row[column.key], row) : row[column.key]}
-                  </td>
-                ))}
+                    加载中...
+                  </div>
+                </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : data.length === 0 ? (
+              <tr>
+                <td colSpan={columns.length} className="table-cell text-center text-gray-500 py-8">
+                  暂无数据
+                </td>
+              </tr>
+            ) : (
+              data.map((row, rowIndex) => (
+                <tr key={rowIndex} className="table-row">
+                  {columns.map((column) => (
+                    <td key={column.key} className={`table-cell ${getAlignClass(column.align)}`}>
+                      {column.render ? column.render(row[column.key], row) : row[column.key]}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -240,15 +240,17 @@ const InventoryManagement: React.FC = () => {
       label: '操作',
       align: 'center' as const,
       render: (_: any, item: ProductInventory) => (
-        <div className="flex gap-1 justify-center">
+        <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 justify-center">
           <Button
             size="sm"
             variant="secondary"
             icon={Eye}
             onClick={() => handleShowInventoryDetails(item)}
             title="查看详情"
+            className="w-full sm:w-auto"
           >
-            详情
+            <span className="sm:hidden">详情</span>
+            <span className="hidden sm:inline">详情</span>
           </Button>
           <Button
             size="sm"
@@ -256,8 +258,10 @@ const InventoryManagement: React.FC = () => {
             icon={Edit}
             onClick={() => handleEditInventory(item)}
             title="编辑库存"
+            className="w-full sm:w-auto"
           >
-            编辑
+            <span className="sm:hidden">编辑</span>
+            <span className="hidden sm:inline">编辑</span>
           </Button>
           <Button
             size="sm"
@@ -265,8 +269,10 @@ const InventoryManagement: React.FC = () => {
             icon={Trash2}
             onClick={() => handleDeleteInventory(item)}
             title="删除库存"
+            className="w-full sm:w-auto"
           >
-            删除
+            <span className="sm:hidden">删除</span>
+            <span className="hidden sm:inline">删除</span>
           </Button>
         </div>
       )
@@ -278,21 +284,21 @@ const InventoryManagement: React.FC = () => {
       {/* Filter Section */}
       <Card title="数据筛选">
         <div className="space-y-4">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <label className="text-gray-600 whitespace-nowrap">产品名称/编号：</label>
             <Input
               placeholder="产品名称/编号"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-64"
+              className="w-full sm:w-64"
             />
           </div>
           
-          <div className="flex justify-end gap-2">
-            <Button icon={Search} onClick={handleSearch} loading={loading}>
+          <div className="flex flex-col sm:flex-row justify-end gap-2">
+            <Button icon={Search} onClick={handleSearch} loading={loading} className="w-full sm:w-auto">
               查询
             </Button>
-            <Button variant="secondary" icon={RotateCcw} onClick={handleReset}>
+            <Button variant="secondary" icon={RotateCcw} onClick={handleReset} className="w-full sm:w-auto">
               重置
             </Button>
           </div>
@@ -301,14 +307,14 @@ const InventoryManagement: React.FC = () => {
 
       {/* Product Type Tabs and Actions */}
       <Card>
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
           {/* Product Type Toggle */}
-          <div className="flex border rounded-md">
+          <div className="flex overflow-x-auto border rounded-md">
             {productTypes.map((type) => (
               <button
                 key={type.value}
                 onClick={() => setSelectedProductType(type.value)}
-                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                className={`px-3 sm:px-4 py-2 text-sm font-medium transition-colors whitespace-nowrap ${
                   selectedProductType === type.value
                     ? 'bg-primary-500 text-white'
                     : 'text-gray-700 hover:bg-gray-50'
@@ -325,21 +331,23 @@ const InventoryManagement: React.FC = () => {
           </div>
 
           {/* Action Buttons - Only show for 产品 */}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button 
               variant="secondary" 
               icon={RefreshCw} 
               onClick={handleRefresh}
               disabled={selectedProductType !== '产品'}
+              className="flex-1 sm:flex-none"
             >
-              刷新
+              <span className="hidden sm:inline">刷新</span>
             </Button>
             <Button 
               icon={Plus} 
               onClick={handleCreateInventory}
               disabled={selectedProductType !== '产品'}
+              className="flex-1 sm:flex-none"
             >
-              新增库存
+              <span className="hidden sm:inline">新增库存</span>
             </Button>
           </div>
         </div>
@@ -348,11 +356,13 @@ const InventoryManagement: React.FC = () => {
       {/* Data Table */}
       <Card>
         {selectedProductType === '产品' ? (
-          <Table
-            columns={columnsWithActions}
-            data={filteredInventory}
-            loading={loading}
-          />
+          <div className="-m-6">
+            <Table
+              columns={columnsWithActions}
+              data={filteredInventory}
+              loading={loading}
+            />
+          </div>
         ) : (
           <div className="text-center py-12">
             <div className="text-gray-400 text-lg mb-2">📦</div>
