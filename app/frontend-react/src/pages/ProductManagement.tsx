@@ -460,7 +460,7 @@ const ProductManagement: React.FC = () => {
           <div className="flex flex-wrap gap-2">
             {canManageProducts ? (
               <Button icon={Plus} onClick={handleOpenAddModal} className="flex-1 sm:flex-none">
-                添加产品
+                <span className="hidden sm:inline">添加产品</span>
               </Button>
             ) : (
               <Button 
@@ -469,14 +469,14 @@ const ProductManagement: React.FC = () => {
                 title="只有管理员或生产管理员可以创建产品"
                 className="opacity-50 cursor-not-allowed flex-1 sm:flex-none"
               >
-                添加产品
+                <span className="hidden sm:inline">添加产品</span>
               </Button>
             )}
             <Button variant="secondary" icon={History} className="flex-1 sm:flex-none">
-              历史产品
+              <span className="hidden sm:inline">历史产品</span>
             </Button>
             <Button variant="secondary" icon={RefreshCw} onClick={fetchProducts} className="flex-1 sm:flex-none">
-              刷新
+              <span className="hidden sm:inline">刷新</span>
             </Button>
           </div>
         </div>
@@ -484,11 +484,13 @@ const ProductManagement: React.FC = () => {
 
       {/* Data Table */}
       <Card>
-        <Table
-          columns={columns}
-          data={filteredProducts}
-          loading={loading}
-        />
+        <div className="-m-6">
+          <Table
+            columns={columns}
+            data={filteredProducts}
+            loading={loading}
+          />
+        </div>
       </Card>
 
       {/* Add Product Modal */}

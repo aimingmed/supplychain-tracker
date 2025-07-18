@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from api.productlog.crud import (create_product_details,
                                  get_all_product_details,
                                  get_all_product_inventory,
+                                 get_product_inventory_by_product_id,
                                  update_product_details,
                                  get_product_details_by_id,
                                  delete_product_details,
@@ -13,7 +14,8 @@ from api.productlog.crud import (create_product_details,
                                  delete_product_inventory)
 from models.productlog.pydantic import (ProductDetailsSchema,
                                         ProductInventorySchema,
-                                        ProductInventoryCreateSchema)
+                                        ProductInventoryCreateSchema,
+                                        ProductInventoryWithDetailsSchema)
 from models.requests.authentication import AuthHandler
 
 router = APIRouter()
@@ -62,10 +64,10 @@ async def create_product_details_endpoint(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/product-inventory", response_model=List[ProductInventorySchema])
+@router.get("/product-inventory", response_model=List[ProductInventoryWithDetailsSchema])
 async def read_all_product_inventory():
     """
-    Get all product inventory.
+    Get all product inventory with complete product details.
     """
     return await get_all_product_inventory()
 
@@ -202,6 +204,26 @@ async def create_product_inventory_endpoint(
         return await create_product_inventory(data)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/product-inventory/by-product/{product_id}", response_model=List[ProductInventorySchema])
+async def get_product_inventory_by_product_endpoint(product_id: str):
+    """
+    Get all product inventory records for a specific product ID.
+    
+    Args:
+        product_id (str): The product ID to get inventory for.
+    
+    Raises:
+        HTTPException: If the product is not found.
+    
+    Returns:
+        List[ProductInventorySchema]: List of product inventory records.
+    """
+    try:
+        return await get_product_inventory_by_product_id(product_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 
 @router.get("/product-inventory/{batch_id}", response_model=ProductInventorySchema)

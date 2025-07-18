@@ -85,6 +85,81 @@ class ProductApi {
     }
     return response.json();
   }
+
+  // Product Inventory API methods
+  static async createProductInventory(data: Omit<ProductInventory, 'batchid_internal' | 'batchid_external' | 'lastupdated'>): Promise<ProductInventory> {
+    const token = AuthApi.getToken();
+    
+    const response = await fetch(`${API_BASE_URL}/productlog/product-inventory`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Failed to create inventory' }));
+      throw new Error(errorData.detail || `Failed to create inventory: ${response.statusText}`);
+    }
+    return response.json();
+  }
+
+  static async getProductInventoryByProductId(productId: string): Promise<ProductInventory[]> {
+    const response = await fetch(`${API_BASE_URL}/productlog/product-inventory/by-product/${productId}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Failed to get product inventory' }));
+      throw new Error(errorData.detail || `Failed to get product inventory: ${response.statusText}`);
+    }
+    return response.json();
+  }
+
+  static async getProductInventory(batchId: string): Promise<ProductInventory> {
+    const response = await fetch(`${API_BASE_URL}/productlog/product-inventory/${batchId}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Failed to get inventory' }));
+      throw new Error(errorData.detail || `Failed to get inventory: ${response.statusText}`);
+    }
+    return response.json();
+  }
+
+  static async updateProductInventory(batchId: string, data: Omit<ProductInventory, 'batchid_internal' | 'batchid_external' | 'lastupdated'>): Promise<ProductInventory> {
+    const token = AuthApi.getToken();
+    
+    const response = await fetch(`${API_BASE_URL}/productlog/product-inventory/${batchId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Failed to update inventory' }));
+      throw new Error(errorData.detail || `Failed to update inventory: ${response.statusText}`);
+    }
+    return response.json();
+  }
+
+  static async deleteProductInventory(batchId: string): Promise<{ message: string; batch_id: string }> {
+    const token = AuthApi.getToken();
+    
+    const response = await fetch(`${API_BASE_URL}/productlog/product-inventory/${batchId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ detail: 'Failed to delete inventory' }));
+      throw new Error(errorData.detail || `Failed to delete inventory: ${response.statusText}`);
+    }
+    return response.json();
+  }
 }
 
 export default ProductApi;

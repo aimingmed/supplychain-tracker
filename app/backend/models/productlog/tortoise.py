@@ -31,6 +31,7 @@ class ProductDetails(models.Model):
 class ProductInventory(models.Model):
     batchid_internal = fields.CharField(max_length=70, unique=True, pk=True)
     batchid_external = fields.CharField(max_length=70)
+    productid = fields.CharField(max_length=20, description="产品号，必须存在于产品详情中")
     basicmediumid = fields.CharField(max_length=7)
     addictiveid = fields.CharField(max_length=7)
     quantityinstock = fields.IntField()
