@@ -28,6 +28,18 @@ async def get_all_product_inventory():
     return await ProductInventorySchema.from_queryset(ProductInventory.all())
 
 
+async def get_product_inventory_by_product_id(product_id: str):
+    """
+    Get all product inventory records for a specific product ID.
+    """
+    # First validate that the product exists
+    product_details = await ProductDetails.get_or_none(productid=product_id)
+    if not product_details:
+        raise ValueError(f"Product with ID {product_id} not found in ProductDetails")
+    
+    return await ProductInventorySchema.from_queryset(ProductInventory.filter(productid=product_id))
+
+
 async def update_product_details(product_id: str, data: ProductDetailsCreateSchema):
     """
     Update an existing ProductDetails record in the database.
@@ -79,7 +91,13 @@ async def delete_product_details(product_id: str):
 async def create_product_inventory(data: ProductInventoryCreateSchema):
     """
     Create a new ProductInventory record in the database.
+    Validates that the referenced productid exists in ProductDetails.
     """
+    # Validate that the productid exists in ProductDetails
+    product_details = await ProductDetails.get_or_none(productid=data.productid)
+    if not product_details:
+        raise ValueError(f"Product with ID {data.productid} not found in ProductDetails. Please create the product details first.")
+    
     # Exclude None values and auto-generated fields
     data_dict = data.dict(exclude_unset=True, exclude_none=True)
     # Remove auto-generated fields if they are present as None or empty
@@ -104,10 +122,17 @@ async def get_product_inventory_by_id(batch_id: str):
 async def update_product_inventory(batch_id: str, data: ProductInventoryCreateSchema):
     """
     Update an existing ProductInventory record in the database.
+    Validates that the referenced productid exists in ProductDetails if it's being updated.
     """
     inventory = await ProductInventory.get_or_none(batchid_internal=batch_id)
     if not inventory:
         raise ValueError(f"Product inventory with batch ID {batch_id} not found")
+    
+    # If productid is being updated, validate that it exists in ProductDetails
+    if hasattr(data, 'productid') and data.productid:
+        product_details = await ProductDetails.get_or_none(productid=data.productid)
+        if not product_details:
+            raise ValueError(f"Product with ID {data.productid} not found in ProductDetails. Please create the product details first.")
     
     # Update the inventory with new data, excluding auto-generated fields
     data_dict = data.dict(exclude_unset=True, exclude_none=True)

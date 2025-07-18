@@ -31,12 +31,13 @@ SAMPLE_PRODUCT_DETAILS = {
 }
 
 SAMPLE_PRODUCT_INVENTORY = {
+    "productid": "P001",  # Added required productid field
     "basicmediumid": "BM001",
     "addictiveid": "AD001",
     "quantityinstock": 50,
     "productiondate": "2025-01-01",  # Fixed: use date format
     "imageurl": "http://example.com/image.jpg",
-    "status": "AVAILABLE",
+    "status": "AVAILABLE(可用)",  # Fixed: use correct enum value
     "productiondatetime": "2025-01-01T12:00:00",
     "producedby": "John Doe",
     "to_show": True,
@@ -54,7 +55,24 @@ SAMPLE_PRODUCT_INVENTORY_RESPONSE = {
     "batchid_internal": "BM001-AD001-ABC123",
     "batchid_external": "BM001-AD001",
     "lastupdated": "2025-01-02T12:00:00",
-    **SAMPLE_PRODUCT_INVENTORY
+    "productid": "P001",  # Added required productid field
+    "basicmediumid": "BM001",
+    "addictiveid": "AD001",
+    "quantityinstock": 50,
+    "productiondate": "2025-01-01",
+    "imageurl": "http://example.com/image.jpg",
+    "status": "AVAILABLE(可用)",  # Fixed: use correct enum value
+    "productiondatetime": "2025-01-01T12:00:00",
+    "producedby": "John Doe",
+    "to_show": True,
+    "lastupdatedby": "Jane Doe",
+    "coa_appearance": "Clear and colorless",
+    "coa_clarity": True,
+    "coa_osmoticpressure": 300.5,
+    "coa_ph": 7.4,
+    "coa__mycoplasma": False,
+    "coa_sterility": True,
+    "coa_fillingvolumedifference": True,
 }
 
 SAMPLE_AUTH_DETAILS = {
@@ -642,3 +660,56 @@ def test_delete_product_inventory_not_found(mock_delete):
     
     # Cleanup
     app.dependency_overrides.clear()
+
+
+# Tests for GET /product-inventory/by-product/{product_id}
+@patch("api.productlog.productlog.get_product_inventory_by_product_id", new_callable=AsyncMock)
+def test_get_product_inventory_by_product_id_success(mock_get):
+    """Test successful retrieval of product inventory by product ID."""
+    # Arrange
+    mock_get.return_value = [SAMPLE_PRODUCT_INVENTORY_RESPONSE]
+    
+    # Act
+    response = client.get("/product-inventory/by-product/P001")
+    
+    # Assert
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) == 1
+    assert data[0]["productid"] == "P001"
+    assert data[0]["basicmediumid"] == "BM001"
+    mock_get.assert_awaited_once_with("P001")
+
+
+@patch("api.productlog.productlog.get_product_inventory_by_product_id", new_callable=AsyncMock)
+def test_get_product_inventory_by_product_id_not_found(mock_get):
+    """Test product inventory retrieval by product ID when product not found."""
+    # Arrange
+    mock_get.side_effect = ValueError("Product with ID INVALID not found in ProductDetails")
+    
+    # Act
+    response = client.get("/product-inventory/by-product/INVALID")
+    
+    # Assert
+    assert response.status_code == 404
+    data = response.json()
+    assert "Product with ID INVALID not found in ProductDetails" in data["detail"]
+    mock_get.assert_awaited_once_with("INVALID")
+
+
+@patch("api.productlog.productlog.get_product_inventory_by_product_id", new_callable=AsyncMock)
+def test_get_product_inventory_by_product_id_empty(mock_get):
+    """Test product inventory retrieval by product ID when no inventory exists."""
+    # Arrange
+    mock_get.return_value = []
+    
+    # Act
+    response = client.get("/product-inventory/by-product/P002")
+    
+    # Assert
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) == 0
+    mock_get.assert_awaited_once_with("P002")

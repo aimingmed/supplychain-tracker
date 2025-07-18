@@ -54,6 +54,16 @@ class Unit(str, Enum):
     BIGBOX = "Big Box(箱)"
 
 
+class InventoryStatus(str, Enum):
+    AVAILABLE = "AVAILABLE(可用)"
+    RESERVED = "RESERVED(预留)"
+    IN_USE = "IN_USE(使用中)"
+    EXPIRED = "EXPIRED(过期)"
+    DAMAGED = "DAMAGED(损坏)"
+    QUARANTINE = "QUARANTINE(隔离)"
+    OUT_OF_STOCK = "OUT_OF_STOCK(缺货)"
+
+
 class ProductDetailsSchema(BaseModel):
     productid: str = Field(
         ..., min_length=1, max_length=20, description="产品号，唯一标识", example="P12345"
@@ -84,12 +94,13 @@ class ProductDetailsSchema(BaseModel):
 
 class ProductInventoryCreateSchema(BaseModel):
     """Schema for creating ProductInventory - excludes auto-generated fields"""
+    productid: str = Field(..., max_length=20, description="产品号，必须存在于产品详情中")
     basicmediumid: str = Field(..., max_length=7)
     addictiveid: str = Field(..., max_length=7)
     quantityinstock: int = Field(...)
     productiondate: date = Field(...)
     imageurl: str = Field(...)
-    status: str = Field(..., max_length=20)
+    status: InventoryStatus = Field(..., description="库存状态", example=InventoryStatus.AVAILABLE)
     productiondatetime: datetime = Field(..., description="生产时间")
     producedby: str = Field(..., max_length=50, description="生产人员")
     coa_appearance: Optional[str] = Field(None, max_length=100, description="外观描述")
@@ -106,12 +117,13 @@ class ProductInventoryCreateSchema(BaseModel):
         orm_mode = True
         schema_extra = {
             "example": {
+                "productid": "P12345",
                 "basicmediumid": "BM001",
                 "addictiveid": "AD001",
                 "quantityinstock": 50,
                 "productiondate": "2025-01-01",
                 "imageurl": "http://example.com/image.jpg",
-                "status": "AVAILABLE",
+                "status": "AVAILABLE(可用)",
                 "productiondatetime": "2025-01-01T12:00:00",
                 "producedby": "John Doe",
                 "coa_appearance": "Clear and colorless",
@@ -131,12 +143,13 @@ class ProductInventorySchema(BaseModel):
     """Schema for ProductInventory - includes all fields for read operations"""
     batchid_internal: Optional[str] = Field(None, max_length=70, description="内部批次号（自动生成）")
     batchid_external: Optional[str] = Field(None, max_length=70, description="外部批次号（自动生成）")
+    productid: str = Field(..., max_length=20, description="产品号")
     basicmediumid: str = Field(..., max_length=7)
     addictiveid: str = Field(..., max_length=7)
     quantityinstock: int = Field(...)
     productiondate: date = Field(...)
     imageurl: str = Field(...)
-    status: str = Field(..., max_length=20)
+    status: InventoryStatus = Field(..., description="库存状态")
     productiondatetime: datetime = Field(..., description="生产时间")
     producedby: str = Field(..., max_length=50, description="生产人员")
     coa_appearance: Optional[str] = Field(None, max_length=100, description="外观描述")
@@ -154,12 +167,13 @@ class ProductInventorySchema(BaseModel):
         orm_mode = True
         schema_extra = {
             "example": {
+                "productid": "P12345",
                 "basicmediumid": "BM001",
                 "addictiveid": "AD001",
                 "quantityinstock": 50,
                 "productiondate": "2025-01-01",
                 "imageurl": "http://example.com/image.jpg",
-                "status": "AVAILABLE",
+                "status": "AVAILABLE(可用)",
                 "productiondatetime": "2025-01-01T12:00:00",
                 "producedby": "John Doe",
                 "coa_appearance": "Clear and colorless",
