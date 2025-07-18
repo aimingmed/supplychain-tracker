@@ -104,7 +104,25 @@ const InventoryManagement: React.FC = () => {
     { 
       key: 'batchid_external', 
       label: '批次号', 
-      align: 'center' as const 
+      align: 'center' as const,
+      render: (value: string, item: ProductInventory) => {
+        const internalBatchId = item.batchid_internal;
+        const tooltipText = internalBatchId ? `内部批次号: ${internalBatchId}` : '内部批次号: 暂无数据';
+        
+        return (
+          <div className="relative group">
+            <span 
+              className="cursor-help underline decoration-dotted hover:bg-blue-50 px-1 py-0.5 rounded transition-colors"
+            >
+              {value}
+            </span>
+            {/* Custom tooltip with clean dark styling */}
+            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-sm rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 shadow-lg">
+              {tooltipText}
+            </div>
+          </div>
+        );
+      }
     },
     { 
       key: 'specification', 
