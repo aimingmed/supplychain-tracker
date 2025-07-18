@@ -99,7 +99,7 @@ class ProductInventoryCreateSchema(BaseModel):
     addictiveid: str = Field(..., max_length=7)
     quantityinstock: int = Field(...)
     productiondate: date = Field(...)
-    imageurl: str = Field(...)
+    imageurl: Optional[str] = Field(None, description="图片URL")
     status: InventoryStatus = Field(..., description="库存状态", example=InventoryStatus.AVAILABLE)
     productiondatetime: datetime = Field(..., description="生产时间")
     producedby: str = Field(..., max_length=50, description="生产人员")
@@ -122,10 +122,13 @@ class ProductInventoryCreateSchema(BaseModel):
                 "addictiveid": "AD001",
                 "quantityinstock": 50,
                 "productiondate": "2025-01-01",
-                "imageurl": "http://example.com/image.jpg",
                 "status": "AVAILABLE(可用)",
                 "productiondatetime": "2025-01-01T12:00:00",
                 "producedby": "John Doe",
+                "to_show": True,
+                "lastupdatedby": "Jane Doe",
+                # Optional fields
+                "imageurl": "http://example.com/image.jpg",
                 "coa_appearance": "Clear and colorless",
                 "coa_clarity": True,
                 "coa_osmoticpressure": 300.5,
@@ -133,8 +136,6 @@ class ProductInventoryCreateSchema(BaseModel):
                 "coa__mycoplasma": False,
                 "coa_sterility": True,
                 "coa_fillingvolumedifference": True,
-                "to_show": True,
-                "lastupdatedby": "Jane Doe",
             }
         }
 
@@ -148,7 +149,7 @@ class ProductInventorySchema(BaseModel):
     addictiveid: str = Field(..., max_length=7)
     quantityinstock: int = Field(...)
     productiondate: date = Field(...)
-    imageurl: str = Field(...)
+    imageurl: Optional[str] = Field(None, description="图片URL")
     status: InventoryStatus = Field(..., description="库存状态")
     productiondatetime: datetime = Field(..., description="生产时间")
     producedby: str = Field(..., max_length=50, description="生产人员")
@@ -216,7 +217,7 @@ class ProductInventoryWithDetailsSchema(BaseModel):
     addictiveid: str = Field(..., max_length=7, description="添加剂ID")
     quantityinstock: int = Field(..., description="库存数量")
     productiondate: date = Field(..., description="生产日期")
-    imageurl: str = Field(..., description="图片URL")
+    imageurl: Optional[str] = Field(None, description="图片URL")
     status: InventoryStatus = Field(..., description="库存状态")
     productiondatetime: datetime = Field(..., description="生产时间")
     producedby: str = Field(..., max_length=50, description="生产人员")

@@ -148,3 +148,41 @@ async def get_current_user(
         "is_verified": account["is_verified"],
     }
     return JSONResponse(status_code=status.HTTP_200_OK, content=response_object)
+
+
+@router.get("/users/by-role/{role}", status_code=200)
+async def get_users_by_role(
+    role: str,
+    auth_details=Depends(auth_handler.auth_wrapper),
+) -> JSONResponse:
+    """Get all users with a specific role.
+
+    Args:
+        role (str): The role to filter by (e.g., "PRODUCER").
+        auth_details (dict, optional): The authentication details.
+            Defaults to Depends(auth_handler.auth_wrapper).
+
+    Returns:
+        JSONResponse: The response containing the list of users with the specified role.
+    """
+    try:
+        users = await crud.get_users_by_role(role)
+        # Remove password field from each user and handle datetime serialization
+        filtered_users = []
+        for user in users:
+            filtered_user = {
+                "username": user["username"],
+                "email": user["email"],
+                "list_of_roles": user["list_of_roles"],
+                "is_verified": user["is_verified"],
+                "created_at": user["created_at"].isoformat() if user["created_at"] else None,
+                "last_login": user["last_login"].isoformat() if user["last_login"] else None,
+            }
+            filtered_users.append(filtered_user)
+        
+        return JSONResponse(status_code=status.HTTP_200_OK, content=filtered_users)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error retrieving users: {str(e)}"
+        )
