@@ -48,10 +48,21 @@ export const Unit = {
   BIGBOX: "Big Box(箱)"
 } as const;
 
+export const InventoryStatus = {
+  AVAILABLE: "AVAILABLE(可用)",
+  RESERVED: "RESERVED(预留)", 
+  IN_USE: "IN_USE(使用中)",
+  EXPIRED: "EXPIRED(过期)",
+  DAMAGED: "DAMAGED(损坏)",
+  QUARANTINE: "QUARANTINE(隔离)",
+  OUT_OF_STOCK: "OUT_OF_STOCK(缺货)"
+} as const;
+
 export type CategoryType = typeof Category[keyof typeof Category];
 export type SubCategoryType = typeof SubCategory[keyof typeof SubCategory];
 export type SourceType = typeof Source[keyof typeof Source];
 export type UnitType = typeof Unit[keyof typeof Unit];
+export type InventoryStatusType = typeof InventoryStatus[keyof typeof InventoryStatus];
 
 export interface ProductDetails {
   productid: string;
@@ -79,12 +90,20 @@ export interface ProductInventory extends ProductDetails {
   quantityinstock: number;
   productiondate: string;
   imageurl: string;
-  status: string;
+  status: InventoryStatusType;
   productiondatetime: string;
   producedby: string;
   to_show: boolean;
   lastupdated: string;
   lastupdatedby: string;
+  // COA fields
+  coa_appearance?: string;
+  coa_clarity?: boolean;
+  coa_osmoticpressure?: number;
+  coa_ph?: number;
+  coa__mycoplasma?: boolean;
+  coa_sterility?: boolean;
+  coa_fillingvolumedifference?: boolean;
 }
 
 // Legacy interface for backward compatibility

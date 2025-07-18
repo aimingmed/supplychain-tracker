@@ -7,6 +7,7 @@ from api.productlog import crud
 from models.productlog.pydantic import (
     ProductDetailsSchema as ProductDetailsCreateSchema,
     ProductInventoryCreateSchema,
+    ProductInventoryWithDetailsSchema,
     InventoryStatus
 )
 
@@ -46,6 +47,46 @@ SAMPLE_PRODUCT_DICT = {
     "reorderlevel": 10,
     "targetstocklevel": 100,
     "leadtime": 5,
+}
+
+SAMPLE_INVENTORY_WITH_DETAILS_DATA = {
+    # Product Details fields
+    "productid": "P001",
+    "category": "Organoid(类器官)",
+    "setsubcategory": "Human Organoid(人源类器官)",
+    "source": "Human(人源)",
+    "productnameen": "Test Product EN",
+    "productnamezh": "测试产品",
+    "specification": "Test Specification",
+    "unit": "Box(盒)",
+    "components": [],
+    "is_sold_independently": True,
+    "remarks_temperature": "Store at -20°C",
+    "storage_temperature_duration": "6 months",
+    "reorderlevel": 10,
+    "targetstocklevel": 100,
+    "leadtime": 5,
+    # Product Inventory fields
+    "batchid_internal": "BM001-AD001-ABC123",
+    "batchid_external": "BM001-AD001",
+    "basicmediumid": "BM001",
+    "addictiveid": "AD001",
+    "quantityinstock": 50,
+    "productiondate": "2025-01-01",
+    "imageurl": "http://example.com/image.jpg",
+    "status": InventoryStatus.AVAILABLE,
+    "productiondatetime": "2025-01-01T12:00:00",
+    "producedby": "John Doe",
+    "to_show": True,
+    "lastupdated": "2025-01-02T12:00:00",
+    "lastupdatedby": "Jane Doe",
+    "coa_appearance": "Clear and colorless",
+    "coa_clarity": True,
+    "coa_osmoticpressure": 300.5,
+    "coa_ph": 7.4,
+    "coa__mycoplasma": False,
+    "coa_sterility": True,
+    "coa_fillingvolumedifference": True,
 }
 
 SAMPLE_INVENTORY_DATA = {
@@ -124,49 +165,96 @@ async def test_get_all_product_details_empty(mock_schema, mock_model):
     assert len(result) == 0
 
 
-# Tests for get_all_product_inventory
+# Tests for get_all_product_inventory (updated for new combined schema)
 @pytest.mark.asyncio
+@patch("api.productlog.crud.ProductDetails")
 @patch("api.productlog.crud.ProductInventory")
+@patch("api.productlog.crud.ProductDetailsSchema")
 @patch("api.productlog.crud.ProductInventorySchema")
-async def test_get_all_product_inventory_success(mock_schema, mock_model):
-    """Test successful retrieval of all product inventory."""
+@patch("api.productlog.crud.ProductInventoryWithDetailsSchema")
+async def test_get_all_product_inventory_success_with_details(
+    mock_combined_schema, mock_inventory_schema, mock_product_schema, mock_inventory_model, mock_product_model
+):
+    """Test successful retrieval of all product inventory with combined details."""
     # Arrange
-    mock_queryset = AsyncMock()
-    mock_model.all.return_value = mock_queryset
-    expected_result = [SAMPLE_INVENTORY_RESPONSE_DATA]
-    mock_schema.from_queryset = AsyncMock(return_value=expected_result)
-
+    # Mock inventory item
+    mock_inventory_item = MagicMock()
+    mock_inventory_item.productid = "P001"
+    mock_inventory_model.all = AsyncMock(return_value=[mock_inventory_item])
+    
+    # Mock product details
+    mock_product_details = MagicMock()
+    mock_product_model.get_or_none = AsyncMock(return_value=mock_product_details)
+    
+    # Mock schema conversions
+    mock_inventory_schema_instance = MagicMock()
+    mock_inventory_schema_instance.dict.return_value = {
+        "batchid_internal": "BM001-AD001-ABC123",
+        "batchid_external": "BM001-AD001", 
+        "quantityinstock": 50,
+        "status": "AVAILABLE(可用)"
+    }
+    mock_inventory_schema.from_tortoise_orm = AsyncMock(return_value=mock_inventory_schema_instance)
+    
+    mock_product_schema_instance = MagicMock()
+    mock_product_schema_instance.dict.return_value = {
+        "productid": "P001",
+        "productnamezh": "测试产品",
+        "category": "Organoid(类器官)"
+    }
+    mock_product_schema.from_tortoise_orm = AsyncMock(return_value=mock_product_schema_instance)
+    
+    # Mock combined schema
+    mock_combined_instance = MagicMock()
+    mock_combined_schema.return_value = mock_combined_instance
+    
     # Act
     result = await crud.get_all_product_inventory()
 
     # Assert
-    mock_model.all.assert_called_once()
-    mock_schema.from_queryset.assert_awaited_once_with(mock_queryset)
-    assert result == expected_result
-    assert isinstance(result, list)
-    assert len(result) == 1
-    assert result[0]["batchid_internal"] == "BM001-AD001-ABC123"
+    mock_inventory_model.all.assert_called_once()
+    mock_product_model.get_or_none.assert_called_once_with(productid="P001")
+    mock_inventory_schema.from_tortoise_orm.assert_awaited_once()
+    mock_product_schema.from_tortoise_orm.assert_awaited_once()
+    mock_combined_schema.assert_called_once()
+    assert result == [mock_combined_instance]
 
 
 @pytest.mark.asyncio
 @patch("api.productlog.crud.ProductInventory")
-@patch("api.productlog.crud.ProductInventorySchema")
-async def test_get_all_product_inventory_empty(mock_schema, mock_model):
+async def test_get_all_product_inventory_empty(mock_inventory_model):
     """Test retrieval when no product inventory exists."""
     # Arrange
-    mock_queryset = AsyncMock()
-    mock_model.all.return_value = mock_queryset
-    mock_schema.from_queryset = AsyncMock(return_value=[])
+    mock_inventory_model.all = AsyncMock(return_value=[])
 
     # Act
     result = await crud.get_all_product_inventory()
 
     # Assert
-    mock_model.all.assert_called_once()
-    mock_schema.from_queryset.assert_awaited_once_with(mock_queryset)
+    mock_inventory_model.all.assert_called_once()
     assert result == []
     assert isinstance(result, list)
     assert len(result) == 0
+
+
+@pytest.mark.asyncio
+@patch("api.productlog.crud.ProductDetails")
+@patch("api.productlog.crud.ProductInventory")
+async def test_get_all_product_inventory_missing_product_details(mock_inventory_model, mock_product_model):
+    """Test retrieval when inventory exists but product details are missing."""
+    # Arrange
+    mock_inventory_item = MagicMock()
+    mock_inventory_item.productid = "P001"
+    mock_inventory_model.all = AsyncMock(return_value=[mock_inventory_item])
+    mock_product_model.get_or_none = AsyncMock(return_value=None)  # Product details not found
+
+    # Act
+    result = await crud.get_all_product_inventory()
+
+    # Assert
+    mock_inventory_model.all.assert_called_once()
+    mock_product_model.get_or_none.assert_called_once_with(productid="P001")
+    assert result == []  # Should skip items without product details
 
 
 # Tests for create_product_details

@@ -14,7 +14,8 @@ from api.productlog.crud import (create_product_details,
                                  delete_product_inventory)
 from models.productlog.pydantic import (ProductDetailsSchema,
                                         ProductInventorySchema,
-                                        ProductInventoryCreateSchema)
+                                        ProductInventoryCreateSchema,
+                                        ProductInventoryWithDetailsSchema)
 from models.requests.authentication import AuthHandler
 
 router = APIRouter()
@@ -63,10 +64,10 @@ async def create_product_details_endpoint(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/product-inventory", response_model=List[ProductInventorySchema])
+@router.get("/product-inventory", response_model=List[ProductInventoryWithDetailsSchema])
 async def read_all_product_inventory():
     """
-    Get all product inventory.
+    Get all product inventory with complete product details.
     """
     return await get_all_product_inventory()
 

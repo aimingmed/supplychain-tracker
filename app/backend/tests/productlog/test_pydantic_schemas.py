@@ -9,6 +9,7 @@ from models.productlog.pydantic import (
     ProductDetailsSchema,
     ProductInventoryCreateSchema,
     ProductInventorySchema,
+    ProductInventoryWithDetailsSchema,
     Category,
     SubCategory,
     Source,
@@ -188,3 +189,185 @@ class TestInventoryStatusEnum:
             
             schema = ProductInventoryCreateSchema(**data)
             assert schema.status == status
+
+
+class TestProductInventoryWithDetailsSchema:
+    """Test ProductInventoryWithDetailsSchema validation."""
+
+    def test_valid_product_inventory_with_details_schema(self):
+        """Test valid ProductInventoryWithDetailsSchema creation with all fields."""
+        data = {
+            # Product Details fields
+            "productid": "P12345",
+            "category": "Organoid(类器官)",
+            "setsubcategory": "Human Organoid(人源类器官)",
+            "source": "Human(人源)",
+            "productnameen": "Test Product EN",
+            "productnamezh": "测试产品",
+            "specification": "100ml",
+            "unit": "Box(盒)",
+            "components": ["P12345", "P12346"],
+            "is_sold_independently": True,
+            "remarks_temperature": "Store at -20°C",
+            "storage_temperature_duration": "Store at -20°C for 6 months",
+            "reorderlevel": 10,
+            "targetstocklevel": 100,
+            "leadtime": 5,
+            # Product Inventory fields
+            "batchid_internal": "BM001-AD001-ABC123",
+            "batchid_external": "BM001-AD001",
+            "basicmediumid": "BM001",
+            "addictiveid": "AD001",
+            "quantityinstock": 50,
+            "productiondate": date.today(),
+            "imageurl": "http://example.com/image.jpg",
+            "status": "AVAILABLE(可用)",
+            "productiondatetime": datetime.now(),
+            "producedby": "John Doe",
+            "to_show": True,
+            "lastupdated": datetime.now(),
+            "lastupdatedby": "Jane Doe",
+        }
+        
+        schema = ProductInventoryWithDetailsSchema(**data)
+        assert schema.productid == "P12345"
+        assert schema.category == Category.ORGANOID
+        assert schema.setsubcategory == SubCategory.HUMAN_ORGANOID
+        assert schema.source == Source.HUMAN
+        assert schema.unit == Unit.BOX
+        assert schema.status == InventoryStatus.AVAILABLE
+        assert schema.batchid_internal == "BM001-AD001-ABC123"
+        assert schema.quantityinstock == 50
+
+    def test_product_inventory_with_details_optional_fields(self):
+        """Test ProductInventoryWithDetailsSchema with optional fields."""
+        data = {
+            # Required Product Details fields
+            "productid": "P12345",
+            "category": "Organoid(类器官)",
+            "setsubcategory": "Human Organoid(人源类器官)",
+            "source": "Human(人源)",
+            "productnameen": "Test Product EN",
+            "productnamezh": "测试产品",
+            "specification": "100ml",
+            "unit": "Box(盒)",
+            "reorderlevel": 10,
+            "targetstocklevel": 100,
+            "leadtime": 5,
+            # Required Product Inventory fields
+            "batchid_internal": "BM001-AD001-ABC123",
+            "batchid_external": "BM001-AD001",
+            "basicmediumid": "BM001",
+            "addictiveid": "AD001",
+            "quantityinstock": 50,
+            "productiondate": date.today(),
+            "imageurl": "http://example.com/image.jpg",
+            "status": "AVAILABLE(可用)",
+            "productiondatetime": datetime.now(),
+            "producedby": "John Doe",
+            "lastupdated": datetime.now(),
+            "lastupdatedby": "Jane Doe",
+            # Optional COA fields
+            "coa_appearance": "Clear and colorless",
+            "coa_clarity": True,
+            "coa_osmoticpressure": 300.5,
+            "coa_ph": 7.4,
+            "coa__mycoplasma": False,
+            "coa_sterility": True,
+            "coa_fillingvolumedifference": True,
+        }
+        
+        schema = ProductInventoryWithDetailsSchema(**data)
+        assert schema.coa_appearance == "Clear and colorless"
+        assert schema.coa_clarity is True
+        assert schema.coa_osmoticpressure == 300.5
+        assert schema.coa_ph == 7.4
+        assert schema.coa__mycoplasma is False
+        assert schema.coa_sterility is True
+        assert schema.coa_fillingvolumedifference is True
+
+    def test_product_inventory_with_details_missing_required_field(self):
+        """Test ProductInventoryWithDetailsSchema fails with missing required fields."""
+        data = {
+            "productid": "P12345",
+            # Missing other required fields
+        }
+
+        with pytest.raises(ValidationError) as exc_info:
+            ProductInventoryWithDetailsSchema(**data)
+
+        error = exc_info.value
+        field_names = [err['loc'][0] for err in error.errors()]
+        assert 'category' in field_names
+        assert 'productnameen' in field_names
+        assert 'batchid_internal' in field_names
+
+    def test_product_inventory_with_details_invalid_enum_values(self):
+        """Test ProductInventoryWithDetailsSchema fails with invalid enum values."""
+        base_data = {
+            "productid": "P12345",
+            "setsubcategory": "Human Organoid(人源类器官)",
+            "source": "Human(人源)",
+            "productnameen": "Test Product EN",
+            "productnamezh": "测试产品",
+            "specification": "100ml",
+            "unit": "Box(盒)",
+            "reorderlevel": 10,
+            "targetstocklevel": 100,
+            "leadtime": 5,
+            "batchid_internal": "BM001-AD001-ABC123",
+            "batchid_external": "BM001-AD001",
+            "basicmediumid": "BM001",
+            "addictiveid": "AD001",
+            "quantityinstock": 50,
+            "productiondate": date.today(),
+            "imageurl": "http://example.com/image.jpg",
+            "productiondatetime": datetime.now(),
+            "producedby": "John Doe",
+            "lastupdated": datetime.now(),
+            "lastupdatedby": "Jane Doe",
+        }
+        
+        # Test invalid category
+        data = {**base_data, "category": "InvalidCategory", "status": "AVAILABLE(可用)"}
+        with pytest.raises(ValidationError):
+            ProductInventoryWithDetailsSchema(**data)
+        
+        # Test invalid status
+        data = {**base_data, "category": "Organoid(类器官)", "status": "InvalidStatus"}
+        with pytest.raises(ValidationError):
+            ProductInventoryWithDetailsSchema(**data)
+
+    def test_product_inventory_with_details_field_constraints(self):
+        """Test ProductInventoryWithDetailsSchema field constraints."""
+        data = {
+            "productid": "P" * 25,  # Exceeds max_length of 20
+            "category": "Organoid(类器官)",
+            "setsubcategory": "Human Organoid(人源类器官)",
+            "source": "Human(人源)",
+            "productnameen": "Test Product EN",
+            "productnamezh": "测试产品",
+            "specification": "100ml",
+            "unit": "Box(盒)",
+            "reorderlevel": 10,
+            "targetstocklevel": 100,
+            "leadtime": 5,
+            "batchid_internal": "BM001-AD001-ABC123",
+            "batchid_external": "BM001-AD001",
+            "basicmediumid": "BM001",
+            "addictiveid": "AD001",
+            "quantityinstock": 50,
+            "productiondate": date.today(),
+            "imageurl": "http://example.com/image.jpg",
+            "status": "AVAILABLE(可用)",
+            "productiondatetime": datetime.now(),
+            "producedby": "John Doe",
+            "lastupdated": datetime.now(),
+            "lastupdatedby": "Jane Doe",
+        }
+        
+        with pytest.raises(ValidationError) as exc_info:
+            ProductInventoryWithDetailsSchema(**data)
+
+        error = exc_info.value
+        assert any(err['loc'][0] == 'productid' for err in error.errors())

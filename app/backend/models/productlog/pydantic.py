@@ -188,3 +188,48 @@ class ProductInventorySchema(BaseModel):
                 "lastupdatedby": "Jane Doe",
             }
         }
+
+
+class ProductInventoryWithDetailsSchema(BaseModel):
+    """Combined schema that includes both product details and inventory information"""
+    # From ProductDetails
+    productid: str = Field(..., max_length=20, description="产品号")
+    category: Category = Field(..., description="产品类别")
+    setsubcategory: SubCategory = Field(..., description="产品子类别")
+    source: Source = Field(..., description="产品来源")
+    productnameen: str = Field(..., max_length=100, description="产品名称(英文)")
+    productnamezh: str = Field(..., max_length=100, description="产品名称(中文)")
+    specification: str = Field(..., max_length=20, description="规格")
+    unit: Unit = Field(..., description="单位")
+    components: List[str] = Field(default=[], description="包含组分")
+    is_sold_independently: bool = Field(default=True, description="是否独立销售")
+    remarks_temperature: Optional[str] = Field(None, max_length=100, description="标签温度标注")
+    storage_temperature_duration: Optional[str] = Field(None, max_length=100, description="储存温度&质保期")
+    reorderlevel: int = Field(..., description="补货水平")
+    targetstocklevel: int = Field(..., description="目标库存水平")
+    leadtime: int = Field(..., description="交货时间（天）")
+    
+    # From ProductInventory
+    batchid_internal: str = Field(..., max_length=70, description="内部批次号")
+    batchid_external: str = Field(..., max_length=70, description="外部批次号")
+    basicmediumid: str = Field(..., max_length=7, description="基础培养基ID")
+    addictiveid: str = Field(..., max_length=7, description="添加剂ID")
+    quantityinstock: int = Field(..., description="库存数量")
+    productiondate: date = Field(..., description="生产日期")
+    imageurl: str = Field(..., description="图片URL")
+    status: InventoryStatus = Field(..., description="库存状态")
+    productiondatetime: datetime = Field(..., description="生产时间")
+    producedby: str = Field(..., max_length=50, description="生产人员")
+    coa_appearance: Optional[str] = Field(None, max_length=100, description="外观描述")
+    coa_clarity: Optional[bool] = Field(None, description="透明度")
+    coa_osmoticpressure: Optional[float] = Field(None, description="渗透压")
+    coa_ph: Optional[float] = Field(None, description="pH值")
+    coa__mycoplasma: Optional[bool] = Field(None, description="支原体检测")
+    coa_sterility: Optional[bool] = Field(None, description="无菌检测")
+    coa_fillingvolumedifference: Optional[bool] = Field(None, description="装量差异限度")
+    to_show: bool = Field(default=True, description="是否展示")
+    lastupdated: datetime = Field(..., description="最后更新时间")
+    lastupdatedby: str = Field(..., max_length=50, description="最后更新人")
+
+    class Config:
+        orm_mode = True

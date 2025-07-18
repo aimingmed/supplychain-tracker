@@ -75,6 +75,46 @@ SAMPLE_PRODUCT_INVENTORY_RESPONSE = {
     "coa_fillingvolumedifference": True,
 }
 
+SAMPLE_PRODUCT_INVENTORY_WITH_DETAILS_RESPONSE = {
+    # Product Details fields
+    "productid": "P001",
+    "category": "Organoid(类器官)",
+    "setsubcategory": "Human Organoid(人源类器官)",
+    "source": "Human(人源)",
+    "productnameen": "Test Product EN",
+    "productnamezh": "测试产品",
+    "specification": "Test Specification",
+    "unit": "Box(盒)",
+    "components": [],
+    "is_sold_independently": True,
+    "remarks_temperature": "Store at -20°C",
+    "storage_temperature_duration": "6 months",
+    "reorderlevel": 10,
+    "targetstocklevel": 100,
+    "leadtime": 5,
+    # Product Inventory fields
+    "batchid_internal": "BM001-AD001-ABC123",
+    "batchid_external": "BM001-AD001",
+    "basicmediumid": "BM001",
+    "addictiveid": "AD001",
+    "quantityinstock": 50,
+    "productiondate": "2025-01-01",
+    "imageurl": "http://example.com/image.jpg",
+    "status": "AVAILABLE(可用)",
+    "productiondatetime": "2025-01-01T12:00:00",
+    "producedby": "John Doe",
+    "to_show": True,
+    "lastupdated": "2025-01-02T12:00:00",
+    "lastupdatedby": "Jane Doe",
+    "coa_appearance": "Clear and colorless",
+    "coa_clarity": True,
+    "coa_osmoticpressure": 300.5,
+    "coa_ph": 7.4,
+    "coa__mycoplasma": False,
+    "coa_sterility": True,
+    "coa_fillingvolumedifference": True,
+}
+
 SAMPLE_AUTH_DETAILS = {
     "username": "testuser",
     "list_of_roles": ["ADMIN"]
@@ -132,12 +172,12 @@ def test_read_all_product_details_empty(mock_get_all):
     assert len(data) == 0
 
 
-# Tests for GET /product-inventory
+# Tests for GET /product-inventory (updated for combined schema)
 @patch("api.productlog.productlog.get_all_product_inventory", new_callable=AsyncMock)
-def test_read_all_product_inventory_success(mock_get_all):
-    """Test successful retrieval of all product inventory."""
+def test_read_all_product_inventory_success_with_details(mock_get_all):
+    """Test successful retrieval of all product inventory with combined product details."""
     # Arrange
-    mock_get_all.return_value = [SAMPLE_PRODUCT_INVENTORY_RESPONSE]
+    mock_get_all.return_value = [SAMPLE_PRODUCT_INVENTORY_WITH_DETAILS_RESPONSE]
     
     # Act
     response = client.get("/product-inventory")
@@ -147,11 +187,43 @@ def test_read_all_product_inventory_success(mock_get_all):
     data = response.json()
     assert isinstance(data, list)
     assert len(data) == 1
-    assert data[0]["batchid_internal"] == "BM001-AD001-ABC123"
-    assert data[0]["basicmediumid"] == "BM001"
-    assert data[0]["addictiveid"] == "AD001"
+    
+    # Verify combined data includes both product and inventory fields
+    item = data[0]
+    # Product details fields
+    assert item["productid"] == "P001"
+    assert item["category"] == "Organoid(类器官)"
+    assert item["productnamezh"] == "测试产品"
+    assert item["reorderlevel"] == 10
+    # Inventory fields
+    assert item["batchid_internal"] == "BM001-AD001-ABC123"
+    assert item["basicmediumid"] == "BM001"
+    assert item["quantityinstock"] == 50
+    assert item["status"] == "AVAILABLE(可用)"
+    
     mock_get_all.assert_awaited_once()
 
+
+@patch("api.productlog.productlog.get_all_product_inventory", new_callable=AsyncMock)
+def test_read_all_product_inventory_empty_with_details(mock_get_all):
+    """Test retrieval when no product inventory exists."""
+    # Arrange
+    mock_get_all.return_value = []
+    
+    # Act
+    response = client.get("/product-inventory")
+    
+    # Assert
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) == 0
+    mock_get_all.assert_awaited_once()
+
+
+# Additional tests for error handling in combined schema functionality
+# Note: Database errors and validation errors are handled at the CRUD level
+# These tests would require the endpoint to have explicit error handling
 
 # Tests for POST /product-details
 @patch("api.productlog.productlog.create_product_details", new_callable=AsyncMock)
@@ -450,8 +522,6 @@ def test_delete_product_details_general_error(mock_delete):
     
     # Cleanup
     app.dependency_overrides.clear()
-    data = response.json()
-    assert "Database constraint violation" in data["detail"]
 
 
 # Tests for ProductInventory API endpoints

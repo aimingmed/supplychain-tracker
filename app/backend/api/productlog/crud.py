@@ -1,6 +1,7 @@
 from models.productlog.pydantic import \
     ProductDetailsSchema as ProductDetailsCreateSchema, \
-    ProductInventoryCreateSchema
+    ProductInventoryCreateSchema, \
+    ProductInventoryWithDetailsSchema
 from models.productlog.tortoise import (ProductDetails, ProductDetailsSchema,
                                         ProductInventory,
                                         ProductInventorySchema)
@@ -23,9 +24,32 @@ async def create_product_details(data: ProductDetailsCreateSchema):
 
 async def get_all_product_inventory():
     """
-    Fetch all product inventory from the database and return as a list of ProductInventorySchema.
+    Fetch all product inventory from the database with joined product details.
+    Returns a list of combined inventory and product details data.
     """
-    return await ProductInventorySchema.from_queryset(ProductInventory.all())
+    # Get all inventory items
+    inventory_items = await ProductInventory.all()
+    
+    result = []
+    for inventory in inventory_items:
+        # Get the corresponding product details
+        product_details = await ProductDetails.get_or_none(productid=inventory.productid)
+        
+        if product_details:
+            # Convert both to dicts
+            inventory_dict = await ProductInventorySchema.from_tortoise_orm(inventory)
+            product_dict = await ProductDetailsSchema.from_tortoise_orm(product_details)
+            
+            # Combine the data - inventory data takes precedence for overlapping fields
+            combined_data = {
+                **product_dict.dict(),  # Product details first
+                **inventory_dict.dict(),  # Inventory data overlays/overrides
+            }
+            
+            # Create the response schema with combined data
+            result.append(ProductInventoryWithDetailsSchema(**combined_data))
+    
+    return result
 
 
 async def get_product_inventory_by_product_id(product_id: str):

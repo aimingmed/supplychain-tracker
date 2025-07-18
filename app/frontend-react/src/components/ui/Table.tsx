@@ -43,20 +43,28 @@ const Table: React.FC<TableProps> = ({
     }
   };
 
+  const getHeaderFlexClass = (align?: string) => {
+    switch (align) {
+      case 'center': return 'justify-center';
+      case 'right': return 'justify-end';
+      default: return 'justify-start';
+    }
+  };
+
   return (
     <div className={`overflow-x-auto ${className}`}>
       <table className="table-element">
-        <thead>
+        <thead className="table-header">
           <tr>
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`${getAlignClass(column.align)} ${
+                className={`table-header-cell ${getAlignClass(column.align)} ${
                   column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
                 }`}
                 onClick={() => column.sortable && handleSort(column.key)}
               >
-                <div className="flex items-center gap-1">
+                <div className={`flex items-center gap-1 ${getHeaderFlexClass(column.align)}`}>
                   {column.label}
                   {column.sortable && (
                     <svg
@@ -82,10 +90,10 @@ const Table: React.FC<TableProps> = ({
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="table-body">
           {loading ? (
             <tr>
-              <td colSpan={columns.length} className="text-center text-gray-500">
+              <td colSpan={columns.length} className="table-cell text-center text-gray-500">
                 <div className="flex items-center justify-center py-8">
                   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -97,15 +105,15 @@ const Table: React.FC<TableProps> = ({
             </tr>
           ) : data.length === 0 ? (
             <tr>
-              <td colSpan={columns.length} className="text-center text-gray-500 py-8">
+              <td colSpan={columns.length} className="table-cell text-center text-gray-500 py-8">
                 暂无数据
               </td>
             </tr>
           ) : (
             data.map((row, rowIndex) => (
-              <tr key={rowIndex}>
+              <tr key={rowIndex} className="table-row">
                 {columns.map((column) => (
-                  <td key={column.key} className={`${getAlignClass(column.align)}`}>
+                  <td key={column.key} className={`table-cell ${getAlignClass(column.align)}`}>
                     {column.render ? column.render(row[column.key], row) : row[column.key]}
                   </td>
                 ))}
