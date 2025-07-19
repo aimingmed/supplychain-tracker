@@ -5,6 +5,7 @@ from fastapi import HTTPException, status
 from models.accounts.pydantic import AccountPayloadSchema
 from models.accounts.tortoise import UsersAccount
 from models.requests.authentication import AuthHandler
+from datetime import datetime
 
 # instantiate the Auth Handler
 auth_handler = AuthHandler()
@@ -22,7 +23,7 @@ async def create_account(payload: AccountPayloadSchema) -> int:
     Returns:
         int: The username of the created account.
     """
-    from datetime import datetime
+    
     
     account = UsersAccount(
         username=payload.username.lower(),
