@@ -1,3 +1,5 @@
+<!-- 启动后直接无法运行 -->
+
 # How to work with this app repository
 
 Build the images:
@@ -6,10 +8,11 @@ Build the images:
 docker compose up --build -d
 ```
 
+<!-- Maybe should be included in Dockerfile -->
 If this is first time setting up database schema, run the following command to create the database schema:
 
 ```bash
-docker compose exec backend-sctracker pipenv run aerich init -t db.TORTOISE_ORM;
+docker compose exec backend-sctracker pipenv run aerich init -t db.TORTOISE_ORM
 docker compose exec backend-sctracker pipenv run aerich init-db
 ```
 
