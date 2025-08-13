@@ -9,4 +9,7 @@
 .DS_Store
 **/migrations
 
-.aider*
+**/.aider*
+
+# pixi environments
+.pixi

@@ -1,0 +1,25 @@
+[workspace]
+authors = ["Sylens Wong <qium@aimingmed.com>"]
+channels = ["conda-forge", "bioconda"]
+name = "supplychain-tracker"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[pypi-options]
+index-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+extra-index-urls = ["https://mirrors.shanghaitech.edu.cn/pypi/web/simple"]
+
+[environments]
+frontend = ["frontend"]
+
+[tasks]
+
+[dependencies]
+
+
+[feature.frontend]
+platforms = ["linux-64"]
+
+[feature.frontend.dependencies]
+nodejs = '>=18.0.0'
+pnpm = '*'
