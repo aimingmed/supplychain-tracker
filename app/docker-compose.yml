@@ -43,7 +43,6 @@ services:
       - backend-sctracker
     environment:
       LOG_LEVEL: "DEBUG"
-      # VITE_REACT_APP_BASE_URL: "https://staging-sctracker.aimingmed.local/api"
 
 
   database-sctracker:
@@ -73,7 +72,7 @@ services:
     container_name: nginx-sctracker
     ports:
       # - "443:443"
-      - "8888:80"
+      - "8877:80"
     volumes:
       - ./nginx/nginx_local.conf:/etc/nginx/nginx.conf
       - ./nginx/ssl:/etc/nginx/ssl

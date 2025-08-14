@@ -9,6 +9,7 @@ COPY . /usr/src/app
 
 #test the app
 # Copy dependency files and install dependencies
+ENV VITE_REACT_APP_BASE_URL="http://localhost:8877/api"
 RUN npm install && npm i --save-dev @types/jest
 RUN npm run build
 
